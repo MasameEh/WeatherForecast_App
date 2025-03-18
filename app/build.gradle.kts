@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    kotlin("plugin.serialization") version "2.1.10"
     id("com.google.devtools.ksp")
 }
 
@@ -59,7 +60,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
 
-
     //retrofit
     implementation ("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
@@ -86,4 +86,6 @@ dependencies {
     implementation ("androidx.navigation:navigation-compose:$nav_version")
     //Serialization for NavArgs
     implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+
+
 }
