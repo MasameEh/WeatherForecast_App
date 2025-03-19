@@ -2,6 +2,7 @@ package com.example.weatherforecast_app.ui.theme
 
 import android.app.Activity
 import android.os.Build
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -9,18 +10,20 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = DarkBlue,
+    secondary = MediumBlue,
+    tertiary = DarkBlue
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = DarkBlue,
+    secondary = MediumBlue,
+    tertiary = DarkBlue
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -56,3 +59,9 @@ fun WeatherForecast_AppTheme(
         content = content
     )
 }
+
+fun Modifier.gradientBackground() = this.background(
+    brush = Brush.verticalGradient(
+        colors = listOf(DarkBlue, MediumBlue)
+    )
+)
