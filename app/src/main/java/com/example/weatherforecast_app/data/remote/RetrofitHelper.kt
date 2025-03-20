@@ -11,5 +11,5 @@ object RetrofitHelper {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-    val weatherService = Instance.create(WeatherService::class.java)
+    val weatherService: WeatherService = Instance.create(WeatherService::class.java)
 }

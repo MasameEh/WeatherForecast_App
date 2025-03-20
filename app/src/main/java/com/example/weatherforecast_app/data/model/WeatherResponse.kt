@@ -6,10 +6,12 @@ data class WeatherResponse(
     val city: City,
     @SerializedName("cnt")
     val count: Int,
+    @SerializedName("dt")
+    val dateTime: Int,
     @SerializedName("cod")
     val statusCode: String,
     @SerializedName("list")
-    val weatherDataList: List<WeatherData>,
+    val weatherDTOList: List<WeatherDTO>,
     val message: Int
 )
 
