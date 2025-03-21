@@ -1,80 +1,75 @@
 package com.example.weatherforecast_app
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.LocationManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
+
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
+
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
+import androidx.core.view.WindowCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
-import com.example.weatherforecast_app.data.remote.RetrofitHelper
+
 import com.example.weatherforecast_app.data.remote.WeatherRemoteDataSourceImp
 import com.example.weatherforecast_app.data.repo.ILocationRepository
 import com.example.weatherforecast_app.data.repo.ILocationRepositoryImp
 import com.example.weatherforecast_app.data.repo.WeatherRepositoryImp
 import com.example.weatherforecast_app.favorites.view.FavoritesScreen
 import com.example.weatherforecast_app.home.view.HomeScreen
+import com.example.weatherforecast_app.home.viewmodel.HomeFactory
+import com.example.weatherforecast_app.home.viewmodel.HomeViewModel
 import com.example.weatherforecast_app.settings.view.SettingsScreen
 import com.example.weatherforecast_app.ui.theme.WeatherForecast_AppTheme
 import com.example.weatherforecast_app.utils.component.BottomNavigationBar
 import com.example.weatherforecast_app.weather_alerts.view.WeatherAlertsScreen
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO_PARALLELISM_PROPERTY_NAME
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
+import kotlinx.coroutines.IO_PARALLELISM_PROPERTY_NAME
+
+private const val LOCATION_REQUEST_CODE = 550;
 class MainActivity : ComponentActivity() {
     lateinit var navHostController: NavHostController
     private val TAG = "MainActivity"
     private lateinit var locationRepository: ILocationRepository
-    private val LOCATION_REQUEST_CODE = 50;
+    private lateinit var homeViewModel: HomeViewModel
 
+
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         locationRepository = ILocationRepositoryImp(this)
+
         setContent {
             WeatherForecast_AppTheme(dynamicColor = false) {
                 navHostController = rememberNavController()
@@ -83,36 +78,41 @@ class MainActivity : ComponentActivity() {
         }
         Log.i(TAG, "IO_PARALLELISM_PROPERTY_NAME: ${IO_PARALLELISM_PROPERTY_NAME.length}")
 
-//        val repo = WeatherRepositoryImp.getInstance(WeatherRemoteDataSourceImp())
-//        lifecycleScope.launch(context = Dispatchers.IO){
-//            val weather = repo.getCurrentWeather(
-//                latitude = 30.59, longitude = 31.5019,
-//            )
-//
-//            weather
-//                .catch { ex ->   Log.i(TAG, "EX: ${ex.message}: ")}
-//                .collect{
-//                    Log.i(TAG, "isSuccessful: city: ${it.name} and ${it.placeInfo} ")
-//                }
-//        }
-
     }
+
+
 
     override fun onStart() {
         super.onStart()
         Log.i(TAG, "onStart: ")
+        homeViewModel = ViewModelProvider(this,
+            HomeFactory(
+                WeatherRepositoryImp.getInstance(
+                    WeatherRemoteDataSourceImp()
+                )
+            )
+        ).get(HomeViewModel::class.java)
+
         if(checkPermissions()){
             if (isLocationEnabled(this)){
                 Log.i(TAG, "onStart: ")
                 locationRepository.getFreshLocation {
                         location ->
                     Log.i(TAG, "Location: $location")
+                    location?.let {
+                        homeViewModel.updateLocation(
+                            latitude = it.latitude,
+                            longitude = it.longitude
+                        )
+                    }
                 }
             }else{
+                Log.i(TAG, "onStart: enable location services ")
                 Toast.makeText(this, "Please enable location services", Toast.LENGTH_SHORT).show()
-                enableLocationServices()
+                showEnableLocationDialog()
             }
         }else{
+            Log.i(TAG, "onStart: requestPermissions ")
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(
@@ -123,6 +123,63 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        Log.i(TAG, "onRequestPermissionsResult: ")
+        if(requestCode == LOCATION_REQUEST_CODE){
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (isLocationEnabled(this)){
+                    Log.i(TAG, "onStart: ")
+                    locationRepository.getFreshLocation {
+                            location ->
+                        Log.i(TAG, "Location: $location")
+                        location?.let {
+                            homeViewModel.updateLocation(
+                                latitude = it.latitude,
+                                longitude = it.longitude
+                            )
+                        }
+                    }
+                }else{
+                    Log.i(TAG, "onStart: enable location services ")
+                    Toast.makeText(this, "Please enable location services", Toast.LENGTH_SHORT).show()
+                    enableLocationServices()
+                }
+            }else{
+                // Permissions denied
+                Toast.makeText(this, "Location permissions denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
+    private fun showEnableLocationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Location Required")
+            .setMessage("Please enable location services to get weather updates.")
+            .setPositiveButton("Enable") { _, _ -> enableLocationServices() }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showSettingsDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Permissions Required")
+            .setMessage("You have denied location permissions. Please enable them in app settings.")
+            .setPositiveButton("Settings") { _, _ ->
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                intent.data = Uri.fromParts("package", packageName, null)
+                startActivity(intent)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
     @Composable
     fun SetUpNavHost(modifier: Modifier = Modifier){
 
@@ -131,7 +188,7 @@ class MainActivity : ComponentActivity() {
             startDestination = ScreensRoute.Home,
         ){
             composable<ScreensRoute.Home>{
-                HomeScreen()
+                HomeScreen(homeViewModel)
             }
 
             composable<ScreensRoute.WeatherAlerts>{
@@ -160,7 +217,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
     private fun checkPermissions(): Boolean{
         return ContextCompat.checkSelfPermission(
             this,
@@ -181,5 +237,9 @@ class MainActivity : ComponentActivity() {
         val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
         startActivity(intent)
     }
+
+
 }
+
+
 

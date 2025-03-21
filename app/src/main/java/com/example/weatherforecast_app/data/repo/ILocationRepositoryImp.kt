@@ -23,19 +23,28 @@ class ILocationRepositoryImp(private val context: Context): ILocationRepository 
     @SuppressLint("MissingPermission")
     override fun getFreshLocation(onLocationReceived: (Location?) -> Unit) {
         Log.i("getFreshLocation", "getFreshLocation: ")
-        val locationRequest = LocationRequest.Builder(0)
+
+        val locationRequest = LocationRequest.Builder(10000)
+            .setMinUpdateDistanceMeters(100f)
             .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
             .build()
-        fusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY,  CancellationTokenSource().token)
-            .addOnSuccessListener { Log.i("getFreshLocation", "getFreshLocation: ${it.latitude} + ${it.longitude} ") }
+//        fusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
+//            .addOnSuccessListener {
+//                    location ->
+//                onLocationReceived(location)
+//                Log.i("getFreshLocation", "getFreshLocation: ${location.latitude} + ${location.longitude} ")
+//            }.addOnFailureListener { exception ->
+//                Log.e("Location", "Error fetching location: ${exception.message}")
+//            }
 
-//        fusedLocationClient.requestLocationUpdates(locationRequest,
-//            object : LocationCallback() {
-//                override fun onLocationResult(location: LocationResult) {
-//                    onLocationReceived(location.lastLocation)
-//                }
-//            },
-//            Looper.getMainLooper())
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+            object : LocationCallback() {
+                override fun onLocationResult(location: LocationResult) {
+                    Log.i("getFreshLocation", "getFreshLocation: ${location.lastLocation?.latitude} + ${location.lastLocation?.longitude} ")
+                    onLocationReceived(location.lastLocation)
+                }
+            },
+            Looper.getMainLooper())
     }
 
 
