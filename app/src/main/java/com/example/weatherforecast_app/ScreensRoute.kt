@@ -1,5 +1,6 @@
 package com.example.weatherforecast_app
 
+import com.example.weatherforecast_app.home.viewmodel.HomeViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable

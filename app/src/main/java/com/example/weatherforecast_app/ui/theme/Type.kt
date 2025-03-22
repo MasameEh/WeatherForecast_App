@@ -47,6 +47,14 @@ val Typography = Typography(
         letterSpacing = 0.sp
     ),
 
+    labelMedium = TextStyle(
+        fontFamily = JosefinSans,
+        fontWeight = FontWeight.Medium,
+        fontSize = 18.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
+    ),
+
     labelSmall = TextStyle(
         fontFamily = JosefinSans,
         fontWeight = FontWeight.Medium,

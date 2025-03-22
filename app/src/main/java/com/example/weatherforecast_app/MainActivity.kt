@@ -67,7 +67,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
+        window.setStatusBarColor(ContextCompat.getColor(this, R.color.dark_blue));
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = false // Ensures light icons
+        }
         locationRepository = ILocationRepositoryImp(this)
 
         setContent {

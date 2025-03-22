@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.weatherforecast_app.WeatherDtoResponse
+import com.example.weatherforecast_app.ResponseState
 import com.example.weatherforecast_app.WeatherResponseState
 import com.example.weatherforecast_app.data.model.Coordinate
 import com.example.weatherforecast_app.data.repo.IWeatherRepository
@@ -18,8 +18,11 @@ private const val TAG = "HomeViewModel"
 
 class HomeViewModel(private val repo: IWeatherRepository): ViewModel() {
 
-    private val mutableWeatherData: MutableStateFlow<WeatherDtoResponse> = MutableStateFlow(WeatherDtoResponse.Loading)
-    val weatherData = mutableWeatherData.asStateFlow()
+    private val mutableCurrentWeather: MutableStateFlow<ResponseState> = MutableStateFlow(ResponseState.Loading)
+    val currentWeatherData = mutableCurrentWeather.asStateFlow()
+
+    private val mutableWeeklyWeather: MutableStateFlow<ResponseState> = MutableStateFlow(ResponseState.Loading)
+    val weeklyWeatherData = mutableWeeklyWeather.asStateFlow()
 
     private val _locationStateFlow = MutableStateFlow<Coordinate?>(null)
     val locationStateFlow = _locationStateFlow.asStateFlow()
@@ -40,13 +43,31 @@ class HomeViewModel(private val repo: IWeatherRepository): ViewModel() {
                 .catch {
                     ex->
                     Log.i(TAG, "getCurrentWeather: ${ex.message}")
-                    mutableWeatherData.value = WeatherDtoResponse.Failure(ex)
+                    mutableCurrentWeather.value = ResponseState.Failure(ex)
                 }
                 .collect{
-                    mutableWeatherData.value = WeatherDtoResponse.Success(it)
+                    mutableCurrentWeather.value = ResponseState.Success(it)
                 }
         }
 
+    }
+
+    fun getWeeklyWeather(
+        latitude: Double,
+        longitude: Double,
+        language: String = "en"
+    ){
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = repo.getWeatherForFiveDays(latitude, longitude)
+            result.catch {
+                    ex->
+                Log.i(TAG, "getWeeklyWeather: ${ex.message}")
+                mutableWeeklyWeather.value = ResponseState.Failure(ex)
+            }.collect{
+                mutableWeeklyWeather.value = ResponseState.Success(it)
+                Log.i(TAG, "getWeeklyWeather: ${it.weatherDTOList}")
+            }
+        }
     }
 }
 
