@@ -34,6 +34,8 @@ import androidx.compose.material3.SnackbarHostState
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
 import androidx.compose.ui.Modifier
@@ -227,16 +229,31 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun MainScreen(modifier: Modifier = Modifier){
+    fun MainScreen(modifier: Modifier = Modifier) {
         val snackBarHostState = remember { SnackbarHostState() }
+        var showBottomAppBar = remember { mutableStateOf(true) }
+
+        LaunchedEffect(navHostController) {
+            navHostController.addOnDestinationChangedListener { _, destination, _ ->
+                Log.i("route", "MainScreen: ${destination.route} ${destination.id} ${destination.label}")
+                when(destination.route){
+                    "com.example.weatherforecast_app.ScreensRoute.Map" -> showBottomAppBar.value = false
+                    else -> showBottomAppBar.value = true
+                }
+            }
+        }
 
         Scaffold(
             modifier = modifier.fillMaxSize(),
             contentWindowInsets = WindowInsets(0.dp),
-            bottomBar = {BottomNavigationBar({selectedItem -> navHostController.navigate(selectedItem.route)})},
+            bottomBar = {
+                if(showBottomAppBar.value){
+                    BottomNavigationBar({ selectedItem -> navHostController.navigate(selectedItem.route) })
+                }
+            },
             snackbarHost = { SnackbarHost(snackBarHostState) }
         ) { innerPadding ->
-                SetUpNavHost(Modifier.padding(innerPadding))
+            SetUpNavHost(Modifier.padding(innerPadding))
         }
     }
 

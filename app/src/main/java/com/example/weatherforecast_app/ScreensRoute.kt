@@ -7,18 +7,28 @@ import kotlinx.serialization.Serializable
 sealed class ScreensRoute {
 
     @Serializable
-    object Home: ScreensRoute()
+    object Home: ScreensRoute() {
+        const val route = "home"
+    }
 
     @Serializable
-    object Favorites: ScreensRoute()
+    object Favorites: ScreensRoute() {
+        const val route = "favorites"
+    }
 
     @Serializable
-    object WeatherAlerts: ScreensRoute()
+    object WeatherAlerts: ScreensRoute() {
+        const val route = "weather_alerts"
+    }
 
     @Serializable
-    object Settings: ScreensRoute()
+    object Settings: ScreensRoute() {
+        const val route = "settings"
+    }
 
     @Serializable
-    object Map : ScreensRoute()
+    object Map : ScreensRoute() {
+        const val route = "map"
+    }
 
 }
