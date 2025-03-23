@@ -1,6 +1,6 @@
 package com.example.weatherforecast_app
 
-import com.example.weatherforecast_app.home.viewmodel.HomeViewModel
+
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -17,5 +17,8 @@ sealed class ScreensRoute {
 
     @Serializable
     object Settings: ScreensRoute()
+
+    @Serializable
+    object Map : ScreensRoute()
 
 }

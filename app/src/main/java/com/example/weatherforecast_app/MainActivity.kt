@@ -23,10 +23,18 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 
 import androidx.compose.ui.Modifier
 
@@ -35,10 +43,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 
 import com.example.weatherforecast_app.data.remote.WeatherRemoteDataSourceImp
 import com.example.weatherforecast_app.data.repo.ILocationRepository
@@ -48,6 +59,7 @@ import com.example.weatherforecast_app.favorites.view.FavoritesScreen
 import com.example.weatherforecast_app.home.view.HomeScreen
 import com.example.weatherforecast_app.home.viewmodel.HomeFactory
 import com.example.weatherforecast_app.home.viewmodel.HomeViewModel
+import com.example.weatherforecast_app.map.MapScreen
 import com.example.weatherforecast_app.settings.view.SettingsScreen
 import com.example.weatherforecast_app.ui.theme.WeatherForecast_AppTheme
 import com.example.weatherforecast_app.utils.component.BottomNavigationBar
@@ -199,11 +211,16 @@ class MainActivity : ComponentActivity() {
             }
 
             composable<ScreensRoute.Favorites>{
-                FavoritesScreen()
+                FavoritesScreen({navHostController.navigate(ScreensRoute.Map)})
             }
 
             composable<ScreensRoute.Settings>{
                 SettingsScreen()
+            }
+
+            composable<ScreensRoute.Map>{ backstackEntry->
+                val entry = backstackEntry.toRoute<ScreensRoute.Map>()
+                MapScreen()
             }
 
         }
@@ -211,10 +228,13 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainScreen(modifier: Modifier = Modifier){
+        val snackBarHostState = remember { SnackbarHostState() }
+
         Scaffold(
             modifier = modifier.fillMaxSize(),
             contentWindowInsets = WindowInsets(0.dp),
-            bottomBar = {BottomNavigationBar({selectedItem -> navHostController.navigate(selectedItem.route)})}
+            bottomBar = {BottomNavigationBar({selectedItem -> navHostController.navigate(selectedItem.route)})},
+            snackbarHost = { SnackbarHost(snackBarHostState) }
         ) { innerPadding ->
                 SetUpNavHost(Modifier.padding(innerPadding))
         }

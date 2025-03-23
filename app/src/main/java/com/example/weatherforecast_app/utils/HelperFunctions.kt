@@ -27,3 +27,9 @@ fun getWeeklyForecast(list: List<WeatherDTO>): List<WeatherDTO> {
         entries.getOrNull(4) ?: entries.get(0)
     }
 }
+
+fun getDayOfWeek(weatherDTO: WeatherDTO): String {
+    val dayOfWeek = SimpleDateFormat("EEEE", Locale.getDefault()).format(Date(weatherDTO.dateTime * 1000L))
+    val today = SimpleDateFormat("EEEE", Locale.getDefault()).format(Date())
+    return if (dayOfWeek == today) "Today" else dayOfWeek
+}

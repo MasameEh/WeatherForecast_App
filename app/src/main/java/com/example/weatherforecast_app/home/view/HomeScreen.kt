@@ -19,11 +19,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,12 +57,12 @@ import com.example.weatherforecast_app.ui.theme.MediumBlue
 import com.example.weatherforecast_app.ui.theme.gradientBackground
 import com.example.weatherforecast_app.ui.theme.onSecondaryColor
 import com.example.weatherforecast_app.utils.formatUnixTimestamp
+import com.example.weatherforecast_app.utils.getDayOfWeek
 import com.example.weatherforecast_app.utils.getHourlyForecast
 import com.example.weatherforecast_app.utils.getWeeklyForecast
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.math.nextUp
 import kotlin.math.roundToInt
 
 private const val TAG = "HomeScreen"
@@ -103,22 +108,23 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 is ResponseState.Failure ->
                     Box(
                         contentAlignment = Alignment.Center ,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize().gradientBackground()
                     ) {
                         Text("Sorry we couldn't show Weather data now")
                     }
                 ResponseState.Loading ->
                     Box(
                     contentAlignment = Alignment.Center ,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize().gradientBackground()
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = onSecondaryColor)
                 }
                 is ResponseState.Success ->{
                     val successWeeklyWeatherData = (weeklyWeatherState as ResponseState.Success).weatherData as WeatherResponse
                     Log.i(TAG, "HomeScreen-> WeeklyWeatherData: ${successWeeklyWeatherData.message} ${successWeeklyWeatherData.city}  ${successWeeklyWeatherData.count} ")
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
+
                         topBar = {
 //                    TopAppBar(
 //                        title = {
@@ -195,14 +201,13 @@ fun CurrentWeatherUI(currentWeatherData: WeatherDTO, weeklyWeatherData: List<Wea
         )
         currentWeatherData.placeInfo.sunrise?.let { formatUnixTimestamp(it) }?.let {
             TemperatureDisplay(
-                temperature = "${currentWeatherData.mainWeatherData.temperature}",
+                temperature = "${currentWeatherData.mainWeatherData.temperature.roundToInt()}",
                 feelsLikeTemp = "${currentWeatherData.mainWeatherData.feels_like}",
                 weatherStatus = currentWeatherData.weather[0].main + " / " + currentWeatherData.weather[0].description,
                 sunriseTime = it
             )
         }
         Spacer(Modifier.height(8.dp))
-
         Row(
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
@@ -426,11 +431,7 @@ fun WeeklyWeather(weatherList: List<WeatherDTO>){
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun WeeklyWeatherItem(weatherDTO: WeatherDTO){
-    var dayOfWeek = SimpleDateFormat("EEEE", Locale.getDefault()).format(Date(weatherDTO.dateTime * 1000L))
-    val today = SimpleDateFormat("EEEE", Locale.getDefault()).format(Date())
-    if(dayOfWeek == today){
-        dayOfWeek = "Today"
-    }
+    val dayOfWeek = getDayOfWeek(weatherDTO)
 
     Log.i(TAG, "dayOfWeek: ${dayOfWeek}")
     Card(
@@ -484,6 +485,7 @@ fun WeeklyWeatherItem(weatherDTO: WeatherDTO){
                 Text(
                     text = "°C",
                     color = MediumBlue,
+                    fontWeight = FontWeight.Normal,
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.padding(start = 4.dp, bottom = 5.dp)
                 )
