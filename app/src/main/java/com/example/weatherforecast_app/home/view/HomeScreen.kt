@@ -79,9 +79,9 @@ fun HomeScreen(viewModel: HomeViewModel) {
         ResponseState.Loading -> {
             Box(
                 contentAlignment = Alignment.Center ,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize().gradientBackground()
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = onSecondaryColor)
             }
         }
         is ResponseState.Failure -> {
@@ -94,7 +94,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
         }
         is ResponseState.Success -> {
 
-            val successCurrentWeatherData = (currentWeatherState as ResponseState.Success).weatherData as WeatherDTO
+            val successCurrentWeatherData = (currentWeatherState as ResponseState.Success).data as WeatherDTO
             Log.i(TAG, "HomeScreen-> CurrentWeatherData: ${successCurrentWeatherData.placeInfo} ${successCurrentWeatherData.weather} ")
 
             when(weeklyWeatherState){
@@ -113,27 +113,10 @@ fun HomeScreen(viewModel: HomeViewModel) {
                     CircularProgressIndicator(color = onSecondaryColor)
                 }
                 is ResponseState.Success ->{
-                    val successWeeklyWeatherData = (weeklyWeatherState as ResponseState.Success).weatherData as WeatherResponse
+                    val successWeeklyWeatherData = (weeklyWeatherState as ResponseState.Success).data as WeatherResponse
                     Log.i(TAG, "HomeScreen-> WeeklyWeatherData: ${successWeeklyWeatherData.message} ${successWeeklyWeatherData.city}  ${successWeeklyWeatherData.count} ")
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
-
-                        topBar = {
-//                    TopAppBar(
-//                        title = {
-//                            Text(
-//                                text = "Weather Forecast",
-//                                modifier = Modifier.fillMaxWidth(),
-//                                textAlign = TextAlign.Center,
-//                                style = MaterialTheme.typography.titleLarge
-//                            )
-//                        },
-//                        colors = TopAppBarDefaults.topAppBarColors(
-//                            containerColor = MaterialTheme.colorScheme.primary,
-//                            titleContentColor = Color.White
-//                        )
-//                    )
-                        }
                     ) { innerPadding ->
                         Column(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -333,9 +316,8 @@ fun IconSquare(iconResId: Int, description: String, measurement: String, unit: S
 fun HourlyWeather(weatherList: List<WeatherDTO>){
 
     LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-        //contentPadding = PaddingValues(5.dp)
-    ) {
+        horizontalArrangement = Arrangement.spacedBy(10.dp))
+    {
         items(weatherList.size) {
             HourlyWeatherItem(weatherList[it])
         }

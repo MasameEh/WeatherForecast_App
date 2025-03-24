@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import com.example.weatherforecast_app.main.ScreensRoute
 import com.example.weatherforecast_app.ui.theme.MediumBlue
 import com.example.weatherforecast_app.ui.theme.onSecondaryColor
@@ -43,7 +45,7 @@ val navigationItems = listOf(
     ),
     NavigationItem(
         title = "Alerts",
-        icon = Icons.Filled.Create,
+        icon = Icons.Default.Notifications,
         route = ScreensRoute.WeatherAlerts
     ),
     NavigationItem(
@@ -53,14 +55,12 @@ val navigationItems = listOf(
     )
 )
 
-
-
 @Composable
 fun BottomNavigationBar(onItemSelected: (NavigationItem) -> Unit){
 
     NavigationBar(
         containerColor = MediumBlue,
-
+        tonalElevation = 30.dp
     ) {
         var selectedNavigationIndex by rememberSaveable {
             mutableIntStateOf(0)
@@ -92,7 +92,7 @@ fun BottomNavigationBar(onItemSelected: (NavigationItem) -> Unit){
                 label = {
                     Text(
                         text = item.title,
-                        style = MaterialTheme.typography.labelMedium,
+                        style = MaterialTheme.typography.labelSmall,
 
                     )
                 }

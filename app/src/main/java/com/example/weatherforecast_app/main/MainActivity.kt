@@ -50,6 +50,8 @@ import com.example.weatherforecast_app.data.remote.WeatherRemoteDataSourceImp
 import com.example.weatherforecast_app.data.repo.LocationRepositoryImp
 import com.example.weatherforecast_app.data.repo.WeatherRepositoryImp
 import com.example.weatherforecast_app.favorites.view.FavoritesScreen
+import com.example.weatherforecast_app.favorites.viewmode.FavoriteViewModel
+import com.example.weatherforecast_app.favorites.viewmode.FavoriteViewModelFactory
 import com.example.weatherforecast_app.home.view.HomeScreen
 import com.example.weatherforecast_app.home.viewmodel.HomeFactory
 import com.example.weatherforecast_app.home.viewmodel.HomeViewModel
@@ -215,7 +217,14 @@ class MainActivity : ComponentActivity() {
             }
 
             composable<ScreensRoute.Favorites>{
-                FavoritesScreen({navHostController.navigate(ScreensRoute.Map)})
+
+                FavoritesScreen(ViewModelProvider(this@MainActivity, FavoriteViewModelFactory(
+                    LocationRepositoryImp.getInstance(
+                        LocationServices.getFusedLocationProviderClient(
+                            this@MainActivity
+                        ), LocationLocalDataSourceImp(
+                            LocationsDatabase.getInstance(this@MainActivity).getLocationsDao()
+                        ))))[FavoriteViewModel::class.java] ,{navHostController.navigate(ScreensRoute.Map)})
             }
 
             composable<ScreensRoute.Settings>{
@@ -237,7 +246,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun MainScreen(modifier: Modifier = Modifier) {
         val snackBarHostState = remember { SnackbarHostState() }
-        var showBottomAppBar = remember { mutableStateOf(true) }
+        val showBottomAppBar = remember { mutableStateOf(true) }
 
         LaunchedEffect(navHostController) {
             navHostController.addOnDestinationChangedListener { _, destination, _ ->
