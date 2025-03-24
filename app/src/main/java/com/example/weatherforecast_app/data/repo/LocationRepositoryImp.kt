@@ -1,24 +1,26 @@
 package com.example.weatherforecast_app.data.repo
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import android.location.Location
-import android.location.LocationManager
 import android.os.Looper
 import android.util.Log
-import androidx.core.content.ContextCompat.checkSelfPermission
+import com.example.weatherforecast_app.data.local.ILocationLocalDataSource
+import com.example.weatherforecast_app.data.model.LocationInfo
+import com.example.weatherforecast_app.data.remote.IWeatherRemoteDataSource
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.flow.Flow
 
-class ILocationRepositoryImp(private val context: Context): ILocationRepository {
+class LocationRepositoryImp private constructor(
+    private val fusedLocationClient: FusedLocationProviderClient,
+    private val localDataSource: ILocationLocalDataSource
+): ILocationRepository {
 
-    private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
     @SuppressLint("MissingPermission")
     override fun getFreshLocation(onLocationReceived: (Location?) -> Unit) {
@@ -47,7 +49,36 @@ class ILocationRepositoryImp(private val context: Context): ILocationRepository 
             Looper.getMainLooper())
     }
 
+    override fun getAllFavLocations(): Flow<List<LocationInfo>> {
+        return localDataSource.getAllFavLocations()
+    }
 
+    override suspend fun insertLocation(location: LocationInfo): Long {
+        return localDataSource.insertLocation(location)
+
+    }
+
+    override suspend fun deleteLocation(location: LocationInfo): Int {
+        return localDataSource.deleteLocation(location)
+    }
+
+    companion object{
+        // Without volatile, a thread could cache instance locally and
+        // keep checking the old value even if another thread already updated it.
+        @Volatile
+        private var instance: LocationRepositoryImp? = null
+
+        fun getInstance(fusedLocationClient: FusedLocationProviderClient, localDataSource: ILocationLocalDataSource): LocationRepositoryImp {
+            //only one thread can enter the block at a time.
+            return instance ?: synchronized(this) {
+                instance ?: LocationRepositoryImp(fusedLocationClient, localDataSource)
+                    .also {
+                        instance = it
+                    }
+            }
+        }
+
+    }
 
 }
 

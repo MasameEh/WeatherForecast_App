@@ -8,7 +8,7 @@ import retrofit2.Response
 
 class WeatherRemoteDataSourceImp : IWeatherRemoteDataSource {
 
-    override suspend fun getWeatherForFiveDays(latitude: Double,
+    override fun getWeatherForFiveDays(latitude: Double,
                                                longitude: Double,
                                                language: String): Flow<WeatherResponse> {
         return flow{
@@ -21,7 +21,7 @@ class WeatherRemoteDataSourceImp : IWeatherRemoteDataSource {
         }
     }
 
-    override suspend fun getCurrentWeather(
+    override fun getCurrentWeather(
         latitude: Double,
         longitude: Double,
         language: String

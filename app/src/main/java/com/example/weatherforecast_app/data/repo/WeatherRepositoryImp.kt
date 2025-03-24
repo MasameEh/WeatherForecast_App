@@ -9,7 +9,7 @@ class WeatherRepositoryImp private constructor(
     private val remoteDataSource: IWeatherRemoteDataSource
 ) : IWeatherRepository {
 
-    override suspend fun getWeatherForFiveDays(
+    override fun getWeatherForFiveDays(
         latitude: Double,
         longitude: Double,
         language: String
@@ -17,7 +17,7 @@ class WeatherRepositoryImp private constructor(
         return remoteDataSource.getWeatherForFiveDays(latitude, longitude, language)
     }
 
-    override suspend fun getCurrentWeather(
+    override fun getCurrentWeather(
         latitude: Double,
         longitude: Double,
         language: String

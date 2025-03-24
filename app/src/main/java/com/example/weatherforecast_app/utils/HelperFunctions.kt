@@ -1,12 +1,14 @@
 package com.example.weatherforecast_app.utils
 
 import android.content.Context
+import android.location.Address
 import android.location.Geocoder
 import com.example.weatherforecast_app.data.model.WeatherDTO
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+
 
 fun formatUnixTimestamp(timestamp: Long): String {
     val date = Date(timestamp * 1000) // Convert seconds to milliseconds
@@ -36,12 +38,19 @@ fun getDayOfWeek(weatherDTO: WeatherDTO): String {
     return if (dayOfWeek == today) "Today" else dayOfWeek
 }
 
-fun getLocationName(context: Context, lat: Double, lng: Double): String {
+fun getLocationName(context: Context, lat: Double, lng: Double): Address? {
     val geocoder = Geocoder(context, Locale.getDefault())
     return try {
         val addresses = geocoder.getFromLocation(lat, lng, 1)
-        addresses?.get(0)?.getAddressLine(0) ?: "Unknown location"
+        val address = addresses?.get(0)
+        val city = address?.locality ?: "Unknown City"
+        val country = address?.countryName ?: "Unknown Country"
+        //addresses?.get(0)?.getAddressLine(0) ?: "Unknown location"
+        "$city, $country"
+        return address
+
     } catch (e: Exception) {
-        "Location not found"
+        null
     }
 }
+

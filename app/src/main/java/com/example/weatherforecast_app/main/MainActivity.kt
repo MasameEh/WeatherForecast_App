@@ -1,19 +1,16 @@
-package com.example.weatherforecast_app
+package com.example.weatherforecast_app.main
 
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import android.view.View
-import android.view.WindowManager
 import android.widget.Toast
 
 import androidx.activity.ComponentActivity
@@ -23,10 +20,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -34,7 +27,6 @@ import androidx.compose.material3.SnackbarHostState
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
@@ -45,37 +37,40 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.weatherforecast_app.R
+import com.example.weatherforecast_app.data.local.LocationLocalDataSourceImp
+import com.example.weatherforecast_app.data.local.LocationsDatabase
 
 import com.example.weatherforecast_app.data.remote.WeatherRemoteDataSourceImp
-import com.example.weatherforecast_app.data.repo.ILocationRepository
-import com.example.weatherforecast_app.data.repo.ILocationRepositoryImp
+import com.example.weatherforecast_app.data.repo.LocationRepositoryImp
 import com.example.weatherforecast_app.data.repo.WeatherRepositoryImp
 import com.example.weatherforecast_app.favorites.view.FavoritesScreen
 import com.example.weatherforecast_app.home.view.HomeScreen
 import com.example.weatherforecast_app.home.viewmodel.HomeFactory
 import com.example.weatherforecast_app.home.viewmodel.HomeViewModel
-import com.example.weatherforecast_app.map.MapScreen
+import com.example.weatherforecast_app.map.view.MapScreen
+import com.example.weatherforecast_app.map.viewmodel.MapViewModel
+import com.example.weatherforecast_app.map.viewmodel.MapViewModelFactory
 import com.example.weatherforecast_app.settings.view.SettingsScreen
 import com.example.weatherforecast_app.ui.theme.WeatherForecast_AppTheme
 import com.example.weatherforecast_app.utils.component.BottomNavigationBar
 import com.example.weatherforecast_app.weather_alerts.view.WeatherAlertsScreen
+import com.google.android.gms.location.LocationServices
 
 import kotlinx.coroutines.IO_PARALLELISM_PROPERTY_NAME
 
-private const val LOCATION_REQUEST_CODE = 550;
+
 class MainActivity : ComponentActivity() {
     lateinit var navHostController: NavHostController
     private val TAG = "MainActivity"
-    private lateinit var locationRepository: ILocationRepository
     private lateinit var homeViewModel: HomeViewModel
-
+    private lateinit var locationViewModel: LocationViewModel
+    private val LOCATION_REQUEST_CODE = 550;
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,8 +80,16 @@ class MainActivity : ComponentActivity() {
         WindowCompat.getInsetsController(window, window.decorView).apply {
             isAppearanceLightStatusBars = false // Ensures light icons
         }
-        locationRepository = ILocationRepositoryImp(this)
-
+        locationViewModel = ViewModelProvider(
+            this,
+            LocationFactory(
+                LocationRepositoryImp.getInstance(LocationServices.getFusedLocationProviderClient(
+                    this
+                ), LocationLocalDataSourceImp(
+                    LocationsDatabase.getInstance(this).getLocationsDao()
+                ))
+            )
+        )[LocationViewModel::class.java]
         setContent {
             WeatherForecast_AppTheme(dynamicColor = false) {
                 navHostController = rememberNavController()
@@ -113,9 +116,8 @@ class MainActivity : ComponentActivity() {
         if(checkPermissions()){
             if (isLocationEnabled(this)){
                 Log.i(TAG, "onStart: ")
-                locationRepository.getFreshLocation {
-                        location ->
-                    Log.i(TAG, "Location: $location")
+                locationViewModel.getFreshLocation {
+                    location ->
                     location?.let {
                         homeViewModel.updateLocation(
                             latitude = it.latitude,
@@ -123,6 +125,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
+
             }else{
                 Log.i(TAG, "onStart: enable location services ")
                 Toast.makeText(this, "Please enable location services", Toast.LENGTH_SHORT).show()
@@ -152,9 +155,8 @@ class MainActivity : ComponentActivity() {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (isLocationEnabled(this)){
                     Log.i(TAG, "onStart: ")
-                    locationRepository.getFreshLocation {
+                    locationViewModel.getFreshLocation {
                             location ->
-                        Log.i(TAG, "Location: $location")
                         location?.let {
                             homeViewModel.updateLocation(
                                 latitude = it.latitude,
@@ -220,9 +222,13 @@ class MainActivity : ComponentActivity() {
                 SettingsScreen()
             }
 
-            composable<ScreensRoute.Map>{ backstackEntry->
-                val entry = backstackEntry.toRoute<ScreensRoute.Map>()
-                MapScreen()
+            composable<ScreensRoute.Map>{
+
+                MapScreen(ViewModelProvider(this@MainActivity, MapViewModelFactory(LocationRepositoryImp.getInstance(LocationServices.getFusedLocationProviderClient(
+                    this@MainActivity
+                ), LocationLocalDataSourceImp(
+                    LocationsDatabase.getInstance(this@MainActivity).getLocationsDao()
+                ))))[MapViewModel::class.java])
             }
 
         }
@@ -237,7 +243,7 @@ class MainActivity : ComponentActivity() {
             navHostController.addOnDestinationChangedListener { _, destination, _ ->
                 Log.i("route", "MainScreen: ${destination.route} ${destination.id} ${destination.label}")
                 when(destination.route){
-                    "com.example.weatherforecast_app.ScreensRoute.Map" -> showBottomAppBar.value = false
+                    "com.example.weatherforecast_app.main.ScreensRoute.Map" -> showBottomAppBar.value = false
                     else -> showBottomAppBar.value = true
                 }
             }

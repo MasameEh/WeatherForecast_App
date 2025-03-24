@@ -4,8 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.weatherforecast_app.ResponseState
-import com.example.weatherforecast_app.WeatherResponseState
+import com.example.weatherforecast_app.utils.ResponseState
 import com.example.weatherforecast_app.data.model.Coordinate
 import com.example.weatherforecast_app.data.repo.IWeatherRepository
 import kotlinx.coroutines.Dispatchers
@@ -18,10 +17,12 @@ private const val TAG = "HomeViewModel"
 
 class HomeViewModel(private val repo: IWeatherRepository): ViewModel() {
 
-    private val mutableCurrentWeather: MutableStateFlow<ResponseState> = MutableStateFlow(ResponseState.Loading)
+    private val mutableCurrentWeather: MutableStateFlow<ResponseState> = MutableStateFlow(
+        ResponseState.Loading)
     val currentWeatherData = mutableCurrentWeather.asStateFlow()
 
-    private val mutableWeeklyWeather: MutableStateFlow<ResponseState> = MutableStateFlow(ResponseState.Loading)
+    private val mutableWeeklyWeather: MutableStateFlow<ResponseState> = MutableStateFlow(
+        ResponseState.Loading)
     val weeklyWeatherData = mutableWeeklyWeather.asStateFlow()
 
     private val _locationStateFlow = MutableStateFlow<Coordinate?>(null)
@@ -61,7 +62,7 @@ class HomeViewModel(private val repo: IWeatherRepository): ViewModel() {
             val result = repo.getWeatherForFiveDays(latitude, longitude)
             result.catch {
                     ex->
-                Log.i(TAG, "getWeeklyWeather: ${ex.message}")
+                Log.i(TAG, "getWeeklyWeather: $ex")
                 mutableWeeklyWeather.value = ResponseState.Failure(ex)
             }.collect{
                 mutableWeeklyWeather.value = ResponseState.Success(it)

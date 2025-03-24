@@ -6,13 +6,13 @@ import kotlinx.coroutines.flow.Flow
 
 interface IWeatherRepository {
 
-    suspend fun getWeatherForFiveDays(
+     fun getWeatherForFiveDays(
         latitude: Double,
         longitude: Double,
         language: String = "en"
     ): Flow<WeatherResponse>
 
-    suspend fun getCurrentWeather(
+     fun getCurrentWeather(
         latitude: Double,
         longitude: Double,
         language: String = "en"
