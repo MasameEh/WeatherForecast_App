@@ -1,4 +1,4 @@
-package com.example.weatherforecast_app.utils.component
+package com.example.weatherforecast_app.component
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
@@ -66,7 +66,7 @@ fun BottomNavigationBar(onItemSelected: (NavigationItem) -> Unit){
             mutableIntStateOf(0)
         }
 
-        navigationItems.forEachIndexed {index, item ->
+        navigationItems.forEachIndexed { index, item ->
             NavigationBarItem(
                 alwaysShowLabel = false,
                 colors = NavigationBarItemColors(

@@ -60,7 +60,10 @@ import com.example.weatherforecast_app.map.viewmodel.MapViewModel
 import com.example.weatherforecast_app.map.viewmodel.MapViewModelFactory
 import com.example.weatherforecast_app.settings.view.SettingsScreen
 import com.example.weatherforecast_app.ui.theme.WeatherForecast_AppTheme
-import com.example.weatherforecast_app.utils.component.BottomNavigationBar
+import com.example.weatherforecast_app.component.BottomNavigationBar
+import com.example.weatherforecast_app.favorite_weather_details.view.FavoriteDetailsScreen
+import com.example.weatherforecast_app.favorite_weather_details.viewmodel.FavoriteDetailsFactory
+import com.example.weatherforecast_app.favorite_weather_details.viewmodel.FavoriteDetailsViewModel
 import com.example.weatherforecast_app.weather_alerts.view.WeatherAlertsScreen
 import com.google.android.gms.location.LocationServices
 
@@ -218,13 +221,20 @@ class MainActivity : ComponentActivity() {
 
             composable<ScreensRoute.Favorites>{
 
-                FavoritesScreen(ViewModelProvider(this@MainActivity, FavoriteViewModelFactory(
-                    LocationRepositoryImp.getInstance(
-                        LocationServices.getFusedLocationProviderClient(
-                            this@MainActivity
-                        ), LocationLocalDataSourceImp(
-                            LocationsDatabase.getInstance(this@MainActivity).getLocationsDao()
-                        ))))[FavoriteViewModel::class.java] ,{navHostController.navigate(ScreensRoute.Map)})
+                FavoritesScreen(ViewModelProvider(
+                    this@MainActivity, FavoriteViewModelFactory(
+                        LocationRepositoryImp.getInstance(
+                            LocationServices.getFusedLocationProviderClient(
+                                this@MainActivity
+                            ), LocationLocalDataSourceImp(
+                                LocationsDatabase.getInstance(this@MainActivity).getLocationsDao()
+                            )
+                        )
+                    )
+                )[FavoriteViewModel::class.java],
+                    { navHostController.navigate(ScreensRoute.Map) },
+                    { latitude, longitude, city -> navHostController.navigate(ScreensRoute.FavoriteDetails(latitude,longitude, city )) }
+                )
             }
 
             composable<ScreensRoute.Settings>{
@@ -233,13 +243,34 @@ class MainActivity : ComponentActivity() {
 
             composable<ScreensRoute.Map>{
 
-                MapScreen(ViewModelProvider(this@MainActivity, MapViewModelFactory(LocationRepositoryImp.getInstance(LocationServices.getFusedLocationProviderClient(
-                    this@MainActivity
-                ), LocationLocalDataSourceImp(
-                    LocationsDatabase.getInstance(this@MainActivity).getLocationsDao()
-                ))))[MapViewModel::class.java])
+                MapScreen(
+                    ViewModelProvider(
+                        this@MainActivity, MapViewModelFactory(
+                            LocationRepositoryImp.getInstance(
+                                LocationServices.getFusedLocationProviderClient(
+                                    this@MainActivity
+                                ), LocationLocalDataSourceImp(
+                                    LocationsDatabase.getInstance(this@MainActivity)
+                                        .getLocationsDao()
+                                )
+                            )
+                        )
+                    )[MapViewModel::class.java]
+                )
             }
 
+            composable<ScreensRoute.FavoriteDetails>{backstackEntry ->
+                val entry = backstackEntry.toRoute<ScreensRoute.FavoriteDetails>()
+                val viewModel = ViewModelProvider(
+                    this@MainActivity,
+                        FavoriteDetailsFactory(
+                            WeatherRepositoryImp.getInstance(
+                                WeatherRemoteDataSourceImp()
+                            )
+                        )
+                )[FavoriteDetailsViewModel::class.java]
+                FavoriteDetailsScreen(viewModel, entry.latitude, entry.longitude, entry.city)
+            }
         }
     }
 

@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "location",
-    primaryKeys = ["country", "city", "latitude", "longitude"]
+    primaryKeys = ["country", "city"]
 )
 data class LocationInfo(
     val country: String,

@@ -129,8 +129,15 @@ fun MapScreen(viewModel: MapViewModel) {
         ) {
             selectedLocation?.let {
                 val address = getLocationName(LocalContext.current, it.latitude, it.longitude)
-                val city = address?.locality ?: "Unknown City"
+                val city = address?.locality
+                    ?: address?.getAddressLine(0)
+                        ?.substringBefore(",") // Extracts  the city
+                        ?.replace(Regex("\\d+|\\b(?:Street|St|Rd|Avenue|Ave|Blvd|P.O. Box|PO Box)\\b", RegexOption.IGNORE_CASE), "")
+                        ?.trim()
+                    ?: "Unknown City"
+
                 val country = address?.countryName ?: "Unknown Country"
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

@@ -9,12 +9,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.statusBarsPadding
+
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -46,6 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherforecast_app.R
+import com.example.weatherforecast_app.data.model.Coordinate
 import com.example.weatherforecast_app.data.model.LocationInfo
 import com.example.weatherforecast_app.favorites.viewmode.FavoriteViewModel
 import com.example.weatherforecast_app.ui.theme.MediumBlue
@@ -56,7 +58,9 @@ import com.example.weatherforecast_app.utils.ResponseState
 private const val TAG = "FavoritesScreen"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoritesScreen(viewModel: FavoriteViewModel, navigateToMap: () -> Unit) {
+fun FavoritesScreen(viewModel: FavoriteViewModel,
+                    navigateToMap: () -> Unit,
+                    navigateToFavoriteDetails: (Double, Double, String) -> Unit) {
 
     viewModel.getAllFavorites()
     val locationsState by viewModel.favoritesList.collectAsStateWithLifecycle()
@@ -107,14 +111,15 @@ fun FavoritesScreen(viewModel: FavoriteViewModel, navigateToMap: () -> Unit) {
                 },
 
                 ){ innerPadding ->
-
                 Column(
                     modifier = Modifier
                         .padding(innerPadding)
                         .fillMaxSize()
                         .gradientBackground()
+                        .statusBarsPadding()
+                        .navigationBarsPadding()
                 ) {
-                    FavoriteLocations(viewModel, successLocationsData)
+                    FavoriteLocations(viewModel, successLocationsData, navigateToFavoriteDetails)
                 }
             }
         }
@@ -124,16 +129,18 @@ fun FavoritesScreen(viewModel: FavoriteViewModel, navigateToMap: () -> Unit) {
 }
 
 @Composable
-fun FavoriteLocations(viewModel: FavoriteViewModel, locations: List<LocationInfo>){
+fun FavoriteLocations(viewModel: FavoriteViewModel,
+                      locations: List<LocationInfo>,
+                      navigateToFavoriteDetails: (Double, Double, String) -> Unit){
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(15.dp),
-        contentPadding = PaddingValues(bottom = 18.dp, start = 18.dp, end = 18.dp),
+        contentPadding = PaddingValues(start = 18.dp, end = 18.dp,),
     ) {
         items(
             locations.size,
             key = {"${locations[it].latitude}_${locations[it].longitude} "}
         ) {
-            FavoriteLocationItem(viewModel, locations[it])
+            FavoriteLocationItem(viewModel, locations[it], navigateToFavoriteDetails)
         }
     }
 }
@@ -141,7 +148,9 @@ fun FavoriteLocations(viewModel: FavoriteViewModel, locations: List<LocationInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoriteLocationItem(viewModel: FavoriteViewModel, location: LocationInfo){
+fun FavoriteLocationItem(viewModel: FavoriteViewModel,
+                         location: LocationInfo,
+                         navigateToFavoriteDetails: (Double, Double, String) -> Unit){
 
     val dismissState = rememberSwipeToDismissBoxState()
    SwipeToDismissBox(
@@ -183,7 +192,9 @@ fun FavoriteLocationItem(viewModel: FavoriteViewModel, location: LocationInfo){
            modifier = Modifier
                .fillMaxWidth()
                .border(2.dp, onSecondaryColor, shape = RoundedCornerShape(15.dp))
-               .clickable { }
+               .clickable {
+                   navigateToFavoriteDetails.invoke(location.latitude, location.longitude, location.city)
+               }
        )  {
            Row(
                modifier = Modifier
