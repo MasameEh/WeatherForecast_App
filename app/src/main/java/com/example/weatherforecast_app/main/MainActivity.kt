@@ -42,6 +42,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.weatherforecast_app.R
 import com.example.weatherforecast_app.data.local.LocationLocalDataSourceImp
 import com.example.weatherforecast_app.data.local.LocationsDatabase
@@ -64,10 +66,11 @@ import com.example.weatherforecast_app.component.BottomNavigationBar
 import com.example.weatherforecast_app.favorite_weather_details.view.FavoriteDetailsScreen
 import com.example.weatherforecast_app.favorite_weather_details.viewmodel.FavoriteDetailsFactory
 import com.example.weatherforecast_app.favorite_weather_details.viewmodel.FavoriteDetailsViewModel
+import com.example.weatherforecast_app.weather_alerts.WeatherAlertsWorker
 import com.example.weatherforecast_app.weather_alerts.view.WeatherAlertsScreen
+import com.example.weatherforecast_app.weather_alerts.viewmodel.AlertsViewModel
 import com.google.android.gms.location.LocationServices
-
-import kotlinx.coroutines.IO_PARALLELISM_PROPERTY_NAME
+import java.util.concurrent.TimeUnit
 
 
 class MainActivity : ComponentActivity() {
@@ -81,10 +84,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+
         window.setStatusBarColor(ContextCompat.getColor(this, R.color.dark_blue));
         WindowCompat.getInsetsController(window, window.decorView).apply {
             isAppearanceLightStatusBars = false // Ensures light icons
         }
+
+
         locationViewModel = ViewModelProvider(
             this,
             LocationFactory(
@@ -95,13 +102,15 @@ class MainActivity : ComponentActivity() {
                 ))
             )
         )[LocationViewModel::class.java]
+
+
         setContent {
             WeatherForecast_AppTheme(dynamicColor = false) {
                 navHostController = rememberNavController()
                 MainScreen()
             }
         }
-        Log.i(TAG, "IO_PARALLELISM_PROPERTY_NAME: ${IO_PARALLELISM_PROPERTY_NAME.length}")
+
 
     }
 
@@ -216,7 +225,7 @@ class MainActivity : ComponentActivity() {
             }
 
             composable<ScreensRoute.WeatherAlerts>{
-                WeatherAlertsScreen()
+                WeatherAlertsScreen(AlertsViewModel())
             }
 
             composable<ScreensRoute.Favorites>{

@@ -3,6 +3,7 @@ package com.example.weatherforecast_app.weather_alerts.view
 import android.app.TimePickerDialog
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +30,7 @@ import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
@@ -48,16 +50,20 @@ import com.example.weatherforecast_app.favorites.view.FavoriteLocations
 import com.example.weatherforecast_app.ui.theme.MediumBlue
 import com.example.weatherforecast_app.ui.theme.gradientBackground
 import com.example.weatherforecast_app.ui.theme.onSecondaryColor
+import com.example.weatherforecast_app.utils.formatDateTimestamp
+import com.example.weatherforecast_app.utils.formatUnixTimestamp
 import com.example.weatherforecast_app.weather_alerts.viewmodel.AlertsViewModel
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherAlertsScreen(viewModel: AlertsViewModel,  onDateTimeSelected: (Long) -> Unit ) {
+fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
 
     val showDatePicker by viewModel.showDatePicker.collectAsStateWithLifecycle()
     val showTimePicker by viewModel.showTimePicker.collectAsStateWithLifecycle()
     val calendar =  Calendar.getInstance()
+    val context = LocalContext.current
+
     val datePickerState = rememberDatePickerState(
         selectableDates = PresentSelectableDates
     )
@@ -78,9 +84,9 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel,  onDateTimeSelected: (Long) 
             FloatingActionButton(
                 modifier = Modifier,
                 onClick = { viewModel.toggleDatePicker(true) },
-                containerColor = onSecondaryColor,
+                containerColor = Color(0xff5e1875),
             ) {
-                Icon(Icons.Default.Add, tint = MediumBlue, contentDescription = "Add Alarm")
+                Icon(Icons.Default.Add, tint = Color.White, contentDescription = "Add Alarm")
             } },
         topBar = {
             TopAppBar(
@@ -120,10 +126,11 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel,  onDateTimeSelected: (Long) 
                         ),
                             onClick = {
                             val selectedDate = datePickerState.selectedDateMillis
+
                             if (selectedDate != null) {
                                 calendar.timeInMillis = selectedDate
-                                viewModel.saveSelectedDate(selectedDate)
                             }
+
                             viewModel.toggleDatePicker(false)
                             viewModel.toggleTimePicker(true)
                         }) {
@@ -139,19 +146,48 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel,  onDateTimeSelected: (Long) 
                             todayDateBorderColor = MediumBlue,
 
                     ),
-                        state = datePickerState)
+                        state = datePickerState
+                    )
                 }
             }
 
             if (showTimePicker) {
                 TimePickerDialog(
                     onConfirm = {
+                        val now = Calendar.getInstance()
+                        val selectedHour = timePickerState.hour
+                        val selectedMinute = timePickerState.minute
+
+                        if (selectedHour < now.get(Calendar.HOUR_OF_DAY) ||
+                            (selectedHour == now.get(Calendar.HOUR_OF_DAY) && selectedMinute < now.get(Calendar.MINUTE))
+                        ) {
+                            Toast.makeText(context, "Please select a future time", Toast.LENGTH_SHORT).show()
+                            return@TimePickerDialog
+                        }
+
                         Log.i("WeatherAlerts", "WeatherAlertsScreen: ${timePickerState.hour} ${timePickerState.minute}")
+                        calendar.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                        calendar.set(Calendar.MINUTE, timePickerState.minute)
+                        calendar.set(Calendar.SECOND, 0)
+                        calendar.set(Calendar.MILLISECOND, 0)
+
+                        val timestamp = calendar.timeInMillis
+
+                        viewModel.scheduleWeatherAlert(context, timestamp)
+
+                        Log.i("WeatherAlerts", "calendar: ${formatDateTimestamp(timestamp)}")
                         viewModel.toggleTimePicker(false)
                                 },
                     onDismiss = {viewModel.toggleTimePicker(false)}
                 ){
                     TimePicker(
+                        colors = TimePickerDefaults.colors(
+                            selectorColor = MediumBlue,
+                            periodSelectorSelectedContainerColor = onSecondaryColor,
+                            periodSelectorUnselectedContainerColor = Color.White,
+                            timeSelectorSelectedContainerColor = onSecondaryColor,
+                            timeSelectorUnselectedContainerColor =  Color.White,
+                        ),
                         state = timePickerState,
                     )
                 }
@@ -164,18 +200,33 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel,  onDateTimeSelected: (Long) 
 @Composable
 fun TimePickerDialog(
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
+    onConfirm:  () -> Unit,
     content: @Composable () -> Unit
 ) {
     AlertDialog(
+        containerColor = MediumBlue,
         onDismissRequest = onDismiss,
         dismissButton = {
-            TextButton(onClick = { onDismiss() }) {
-                Text("Dismiss")
+            TextButton(
+                colors = ButtonColors(
+                    containerColor = MediumBlue,
+                    contentColor = Color.White,
+                    disabledContentColor = MediumBlue,
+                    disabledContainerColor = Color.White,
+                ),
+                onClick = { onDismiss() }) {
+                Text("CANCEL")
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm() }) {
+            TextButton(
+                colors = ButtonColors(
+                    containerColor = MediumBlue,
+                    contentColor = Color.White,
+                    disabledContentColor = MediumBlue,
+                    disabledContainerColor = Color.White,
+                ),
+                onClick = { onConfirm() }) {
                 Text("OK")
             }
         },
@@ -187,6 +238,13 @@ fun TimePickerDialog(
 object PresentSelectableDates: SelectableDates {
 
     override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-        return utcTimeMillis >= System.currentTimeMillis()
+        val now = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+
+        return utcTimeMillis >= now
     }
 }

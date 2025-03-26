@@ -16,6 +16,11 @@ fun formatUnixTimestamp(timestamp: Long): String {
     formatter.timeZone = TimeZone.getTimeZone("UTC")
     return formatter.format(date)
 }
+fun formatDateTimestamp(timestamp: Long): String {
+    val date = Date(timestamp)
+    val formatter = SimpleDateFormat("EEE, dd MMM yyyy - hh:mm a", Locale.getDefault())
+    return formatter.format(date)
+}
 
 fun getHourlyForecast(list: List<WeatherDTO>): List<WeatherDTO> {
     return list.take(8)
@@ -27,7 +32,6 @@ fun getWeeklyForecast(list: List<WeatherDTO>): List<WeatherDTO> {
     return list.groupBy {
         SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(it.dateTime * 1000L))
     }.map { (_, entries) ->
-        println("entries" + entries)
         entries.getOrNull(4) ?: entries.get(0)
     }
 }

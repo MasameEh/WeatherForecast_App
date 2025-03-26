@@ -21,10 +21,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -86,10 +88,11 @@ fun FavoritesScreen(viewModel: FavoriteViewModel,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(bottom = 80.dp),
+                floatingActionButtonPosition = FabPosition.Center,
                 floatingActionButton = {
                     FloatingActionButton(
                         onClick = { navigateToMap.invoke() },
-                        containerColor = MediumBlue,
+                        containerColor = Color(0xff5e1875),
                     ) {
                         Icon(Icons.Default.Add, tint = Color.White,contentDescription = "Add Location")
                     } },
@@ -200,7 +203,8 @@ fun FavoriteLocationItem(viewModel: FavoriteViewModel,
                modifier = Modifier
                    .fillMaxWidth()
                    .padding(16.dp),
-               horizontalArrangement = Arrangement.spacedBy(2.dp, alignment = Alignment.CenterHorizontally)
+               horizontalArrangement = Arrangement.spacedBy(2.dp, alignment = Alignment.CenterHorizontally),
+               verticalAlignment = Alignment.CenterVertically
            ){
                Image(
                    painter = painterResource(R.drawable.pin),
@@ -216,6 +220,11 @@ fun FavoriteLocationItem(viewModel: FavoriteViewModel,
                    color = MediumBlue,
                    modifier = Modifier.weight(2f)
                    //text= "$city, $country"
+               )
+               Icon(
+                   imageVector = Icons.Default.KeyboardArrowRight,
+                   contentDescription = "show details",
+                   tint = MediumBlue,
                )
            }
 
