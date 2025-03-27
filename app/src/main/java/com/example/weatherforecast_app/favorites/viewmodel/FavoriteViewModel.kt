@@ -1,11 +1,11 @@
-package com.example.weatherforecast_app.favorites.viewmode
+package com.example.weatherforecast_app.favorites.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.weatherforecast_app.data.model.LocationInfo
-import com.example.weatherforecast_app.data.repo.ILocationRepository
+import com.example.weatherforecast_app.data.repo.location_repo.ILocationRepository
 import com.example.weatherforecast_app.utils.ResponseState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -53,7 +53,7 @@ class FavoriteViewModel(
                 }
             }catch (ex: Exception){
                 Log.i(TAG, "deleteLocationFromFav: ex = $ex")
-                mutableMsg.emit("Error!! Couldn't be added, try again")
+                mutableMsg.emit("Error!! Couldn't be deleted, try again")
             }
 
         }

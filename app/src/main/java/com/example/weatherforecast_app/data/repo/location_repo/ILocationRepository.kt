@@ -1,4 +1,4 @@
-package com.example.weatherforecast_app.data.repo
+package com.example.weatherforecast_app.data.repo.location_repo
 
 import android.location.Location
 import com.example.weatherforecast_app.data.model.LocationInfo

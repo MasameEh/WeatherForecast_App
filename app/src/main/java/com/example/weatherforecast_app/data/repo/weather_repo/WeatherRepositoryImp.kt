@@ -1,4 +1,4 @@
-package com.example.weatherforecast_app.data.repo
+package com.example.weatherforecast_app.data.repo.weather_repo
 
 import com.example.weatherforecast_app.data.model.WeatherDTO
 import com.example.weatherforecast_app.data.model.WeatherResponse
@@ -35,7 +35,7 @@ class WeatherRepositoryImp private constructor(
         fun getInstance(remoteDataSource: IWeatherRemoteDataSource): WeatherRepositoryImp {
             //only one thread can enter the block at a time.
             return instance ?: synchronized(this) {
-                instance ?: WeatherRepositoryImp(remoteDataSource)
+                instance ?: WeatherRepositoryImp(remoteDataSource) //  Double-Checked Locking pattern
                     .also {
                     instance = it
                 }

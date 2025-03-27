@@ -1,7 +1,6 @@
-package com.example.weatherforecast_app.component
+package com.example.weatherforecast_app.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications

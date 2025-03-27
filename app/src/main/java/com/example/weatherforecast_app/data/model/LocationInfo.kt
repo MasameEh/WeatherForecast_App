@@ -1,7 +1,6 @@
 package com.example.weatherforecast_app.data.model
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "location",

@@ -1,4 +1,4 @@
-package com.example.weatherforecast_app.data.local
+package com.example.weatherforecast_app.data.local.location
 
 import com.example.weatherforecast_app.data.model.LocationInfo
 import kotlinx.coroutines.flow.Flow

@@ -18,7 +18,7 @@ fun formatUnixTimestamp(timestamp: Long): String {
 }
 fun formatDateTimestamp(timestamp: Long): String {
     val date = Date(timestamp)
-    val formatter = SimpleDateFormat("EEE, dd MMM yyyy - hh:mm a", Locale.getDefault())
+    val formatter = SimpleDateFormat("EEE, dd MMM yyyy - \n hh:mm a", Locale.getDefault())
     return formatter.format(date)
 }
 

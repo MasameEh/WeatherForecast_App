@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.weatherforecast_app.data.repo.IWeatherRepository
+import com.example.weatherforecast_app.data.repo.weather_repo.IWeatherRepository
 import com.example.weatherforecast_app.utils.ResponseState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

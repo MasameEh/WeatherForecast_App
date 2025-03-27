@@ -3,7 +3,7 @@ package com.example.weatherforecast_app.main;
 import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.weatherforecast_app.data.repo.ILocationRepository;
+import com.example.weatherforecast_app.data.repo.location_repo.ILocationRepository;
 
 
 class LocationViewModel (private val repo: ILocationRepository): ViewModel(){

@@ -1,4 +1,4 @@
-package com.example.weatherforecast_app.data.repo
+package com.example.weatherforecast_app.data.repo.weather_repo
 
 import com.example.weatherforecast_app.data.model.WeatherDTO
 import com.example.weatherforecast_app.data.model.WeatherResponse

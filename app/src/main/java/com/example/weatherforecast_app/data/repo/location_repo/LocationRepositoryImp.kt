@@ -1,18 +1,15 @@
-package com.example.weatherforecast_app.data.repo
+package com.example.weatherforecast_app.data.repo.location_repo
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.location.Location
 import android.os.Looper
 import android.util.Log
-import com.example.weatherforecast_app.data.local.ILocationLocalDataSource
+import com.example.weatherforecast_app.data.local.location.ILocationLocalDataSource
 import com.example.weatherforecast_app.data.model.LocationInfo
-import com.example.weatherforecast_app.data.remote.IWeatherRemoteDataSource
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.flow.Flow
 

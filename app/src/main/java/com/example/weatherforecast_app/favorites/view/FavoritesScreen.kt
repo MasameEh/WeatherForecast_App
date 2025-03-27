@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
@@ -49,9 +50,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherforecast_app.R
-import com.example.weatherforecast_app.data.model.Coordinate
 import com.example.weatherforecast_app.data.model.LocationInfo
-import com.example.weatherforecast_app.favorites.viewmode.FavoriteViewModel
+import com.example.weatherforecast_app.favorites.viewmodel.FavoriteViewModel
 import com.example.weatherforecast_app.ui.theme.MediumBlue
 import com.example.weatherforecast_app.ui.theme.gradientBackground
 import com.example.weatherforecast_app.ui.theme.onSecondaryColor
@@ -206,11 +206,10 @@ fun FavoriteLocationItem(viewModel: FavoriteViewModel,
                horizontalArrangement = Arrangement.spacedBy(2.dp, alignment = Alignment.CenterHorizontally),
                verticalAlignment = Alignment.CenterVertically
            ){
-               Image(
-                   painter = painterResource(R.drawable.pin),
-                   modifier = Modifier.size(25.dp).weight(1f),
-                   contentScale = ContentScale.Fit,
-                   contentDescription = "Location Icon",
+               Icon(
+                   imageVector = Icons.Default.LocationOn,
+                   contentDescription = "show details",
+                   tint = MediumBlue,
                )
                Text(
                    text= "${location.city}, ${location.country}",

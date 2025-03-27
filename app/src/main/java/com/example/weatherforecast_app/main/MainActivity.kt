@@ -42,18 +42,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import com.example.weatherforecast_app.R
-import com.example.weatherforecast_app.data.local.LocationLocalDataSourceImp
-import com.example.weatherforecast_app.data.local.LocationsDatabase
+import com.example.weatherforecast_app.data.local.location.LocationLocalDataSourceImp
+import com.example.weatherforecast_app.data.local.AppDatabase
 
 import com.example.weatherforecast_app.data.remote.WeatherRemoteDataSourceImp
-import com.example.weatherforecast_app.data.repo.LocationRepositoryImp
-import com.example.weatherforecast_app.data.repo.WeatherRepositoryImp
+import com.example.weatherforecast_app.data.repo.location_repo.LocationRepositoryImp
+import com.example.weatherforecast_app.data.repo.weather_repo.WeatherRepositoryImp
 import com.example.weatherforecast_app.favorites.view.FavoritesScreen
-import com.example.weatherforecast_app.favorites.viewmode.FavoriteViewModel
-import com.example.weatherforecast_app.favorites.viewmode.FavoriteViewModelFactory
+import com.example.weatherforecast_app.favorites.viewmodel.FavoriteViewModel
+import com.example.weatherforecast_app.favorites.viewmodel.FavoriteViewModelFactory
 import com.example.weatherforecast_app.home.view.HomeScreen
 import com.example.weatherforecast_app.home.viewmodel.HomeFactory
 import com.example.weatherforecast_app.home.viewmodel.HomeViewModel
@@ -62,15 +60,17 @@ import com.example.weatherforecast_app.map.viewmodel.MapViewModel
 import com.example.weatherforecast_app.map.viewmodel.MapViewModelFactory
 import com.example.weatherforecast_app.settings.view.SettingsScreen
 import com.example.weatherforecast_app.ui.theme.WeatherForecast_AppTheme
-import com.example.weatherforecast_app.component.BottomNavigationBar
+import com.example.weatherforecast_app.components.BottomNavigationBar
+import com.example.weatherforecast_app.data.local.Alert.AlertLocalDataSourceImp
+import com.example.weatherforecast_app.data.repo.alert_repo.AlertRepositoryImp
 import com.example.weatherforecast_app.favorite_weather_details.view.FavoriteDetailsScreen
 import com.example.weatherforecast_app.favorite_weather_details.viewmodel.FavoriteDetailsFactory
 import com.example.weatherforecast_app.favorite_weather_details.viewmodel.FavoriteDetailsViewModel
-import com.example.weatherforecast_app.weather_alerts.WeatherAlertsWorker
+import com.example.weatherforecast_app.utils.Constants.REQUEST_CODE_NOTIFICATIONS
 import com.example.weatherforecast_app.weather_alerts.view.WeatherAlertsScreen
 import com.example.weatherforecast_app.weather_alerts.viewmodel.AlertsViewModel
+import com.example.weatherforecast_app.weather_alerts.viewmodel.AlertsViewModelFactory
 import com.google.android.gms.location.LocationServices
-import java.util.concurrent.TimeUnit
 
 
 class MainActivity : ComponentActivity() {
@@ -98,8 +98,9 @@ class MainActivity : ComponentActivity() {
                 LocationRepositoryImp.getInstance(LocationServices.getFusedLocationProviderClient(
                     this
                 ), LocationLocalDataSourceImp(
-                    LocationsDatabase.getInstance(this).getLocationsDao()
-                ))
+                    AppDatabase.getInstance(this).getLocationsDao()
+                )
+                )
             )
         )[LocationViewModel::class.java]
 
@@ -113,8 +114,6 @@ class MainActivity : ComponentActivity() {
 
 
     }
-
-
 
     override fun onStart() {
         super.onStart()
@@ -180,13 +179,17 @@ class MainActivity : ComponentActivity() {
                     }
                 }else{
                     Log.i(TAG, "onStart: enable location services ")
-                    Toast.makeText(this, "Please enable location services", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Please enable location services so you see the latest weather status!", Toast.LENGTH_SHORT).show()
                     enableLocationServices()
                 }
             }else{
                 // Permissions denied
                 Toast.makeText(this, "Location permissions denied", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        if (requestCode == REQUEST_CODE_NOTIFICATIONS) {
+            Toast.makeText(this, "Permission denied! Alerts will not appear", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -213,6 +216,7 @@ class MainActivity : ComponentActivity() {
             .show()
     }
 
+
     @Composable
     fun SetUpNavHost(modifier: Modifier = Modifier){
 
@@ -225,7 +229,17 @@ class MainActivity : ComponentActivity() {
             }
 
             composable<ScreensRoute.WeatherAlerts>{
-                WeatherAlertsScreen(AlertsViewModel())
+                WeatherAlertsScreen(
+                    ViewModelProvider(
+                        this@MainActivity,
+                        AlertsViewModelFactory(
+                            AlertRepositoryImp.getInstance(
+                                AlertLocalDataSourceImp(
+                                    dao =  AppDatabase.getInstance(this@MainActivity).getLocationsDao()
+                                )
+                            ))
+                    )[AlertsViewModel::class.java]
+                )
             }
 
             composable<ScreensRoute.Favorites>{
@@ -236,7 +250,7 @@ class MainActivity : ComponentActivity() {
                             LocationServices.getFusedLocationProviderClient(
                                 this@MainActivity
                             ), LocationLocalDataSourceImp(
-                                LocationsDatabase.getInstance(this@MainActivity).getLocationsDao()
+                                AppDatabase.getInstance(this@MainActivity).getLocationsDao()
                             )
                         )
                     )
@@ -259,7 +273,7 @@ class MainActivity : ComponentActivity() {
                                 LocationServices.getFusedLocationProviderClient(
                                     this@MainActivity
                                 ), LocationLocalDataSourceImp(
-                                    LocationsDatabase.getInstance(this@MainActivity)
+                                    AppDatabase.getInstance(this@MainActivity)
                                         .getLocationsDao()
                                 )
                             )
@@ -282,6 +296,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 
     @Composable
     fun MainScreen(modifier: Modifier = Modifier) {
@@ -323,7 +338,7 @@ class MainActivity : ComponentActivity() {
         ) == PackageManager.PERMISSION_GRANTED
     }
     private fun isLocationEnabled(context: Context): Boolean {
-        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
