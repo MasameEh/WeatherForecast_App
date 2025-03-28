@@ -20,12 +20,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,7 +35,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -70,6 +73,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
     val currentWeatherState by viewModel.currentWeatherData.collectAsStateWithLifecycle()
     val weeklyWeatherState by viewModel.weeklyWeatherData.collectAsStateWithLifecycle()
 
+
     LaunchedEffect(locationState) {
         locationState?.let {
             viewModel.getCurrentWeather(it.lat, it.lon)
@@ -91,7 +95,27 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 contentAlignment = Alignment.Center ,
                 modifier = Modifier.fillMaxSize()
             ) {
-                Text("Sorry we couldn't show Weather data now")
+                Text(
+                    stringResource(R.string.sorry),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White
+                )
+                Spacer(Modifier.height(10.dp))
+                Button(
+                    colors = ButtonColors(
+                        containerColor = Color.Gray,
+                        contentColor = Color.White,
+                        disabledContentColor = Color.White,
+                        disabledContainerColor = Color.Gray
+                    ),
+                    onClick = {
+                        locationState?.let {
+                            viewModel.getCurrentWeather(it.lat, it.lon)
+                        }
+                    }
+                ) {
+                    Text(stringResource(R.string.try_again))
+                }
             }
         }
         is ResponseState.Success -> {
@@ -104,7 +128,27 @@ fun HomeScreen(viewModel: HomeViewModel) {
                         contentAlignment = Alignment.Center ,
                         modifier = Modifier.fillMaxSize().gradientBackground()
                     ) {
-                        Text("Sorry we couldn't show Weather data now")
+                        Text(
+                            stringResource(R.string.sorry),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color.White
+                        )
+                        Spacer(Modifier.height(10.dp))
+                        Button(
+                            colors = ButtonColors(
+                                containerColor = Color.Gray,
+                                contentColor = Color.White,
+                                disabledContentColor = Color.White,
+                                disabledContainerColor = Color.Gray
+                            ),
+                            onClick = {
+                                locationState?.let {
+                                    viewModel.getCurrentWeather(it.lat, it.lon)
+                                }
+                            }
+                        ) {
+                            Text(stringResource(R.string.try_again))
+                        }
                     }
                 ResponseState.Loading ->
                     Box(
@@ -141,9 +185,10 @@ fun HomeScreen(viewModel: HomeViewModel) {
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun CurrentWeatherUI(currentWeatherData: WeatherDTO, weeklyWeatherData: List<WeatherDTO>){
-
+    val context = LocalContext.current
     val formatter = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
     val date = formatter.format(Date())
+
     Column(
         modifier = Modifier.padding(start = 18.dp, top = 20.dp, end = 18.dp)
     ) {
@@ -186,10 +231,10 @@ fun CurrentWeatherUI(currentWeatherData: WeatherDTO, weeklyWeatherData: List<Wea
         Row(
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            IconSquare(R.drawable.wind, "Wind","${currentWeatherData.wind.speed}", "m/s")
-            IconSquare(R.drawable.humidity, "Humidity", "${currentWeatherData.mainWeatherData.humidity}", "%")
-            IconSquare(R.drawable.pressure, "Pressure", "${currentWeatherData.mainWeatherData.pressure}", "hpa")
-            IconSquare(R.drawable.clouds, "Clouds", " ${currentWeatherData.clouds.all}", "%")
+            IconSquare(R.drawable.wind, stringResource(R.string.wind),"${currentWeatherData.wind.speed}", "m/s")
+            IconSquare(R.drawable.humidity, stringResource(R.string.humidity), "${currentWeatherData.mainWeatherData.humidity}", "%")
+            IconSquare(R.drawable.pressure, stringResource(R.string.pressure), "${currentWeatherData.mainWeatherData.pressure}", "hpa")
+            IconSquare(R.drawable.clouds, stringResource(R.string.clouds), " ${currentWeatherData.clouds.all}", "%")
         }
         Spacer(Modifier.height(10.dp))
         HourlyWeather(getHourlyForecast(weeklyWeatherData))
@@ -206,6 +251,7 @@ fun TemperatureDisplay(temperature: String,
                        unit: String = "°C",
                        sunriseTime: String = "5:50"
 ) {
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
@@ -239,7 +285,7 @@ fun TemperatureDisplay(temperature: String,
             .fillMaxWidth()
     ) {
         Text(
-            text = "Feels like $feelsLikeTemp",
+            text = "${stringResource(R.string.Feels_like)} $feelsLikeTemp",
             color = Color.White.copy(alpha = .6f),
             fontSize = 14.sp,
             style = MaterialTheme.typography.labelSmall
@@ -265,7 +311,7 @@ fun TemperatureDisplay(temperature: String,
         )
         Spacer(Modifier.width(5.dp))
         Text(
-            text = "Sunrise $sunriseTime",
+            text = "${stringResource(R.string.sunrise)} $sunriseTime",
             color = Color.White.copy(alpha = .6f),
             fontSize = 14.sp,
             style = MaterialTheme.typography.labelSmall
@@ -390,7 +436,7 @@ fun WeeklyWeather(weatherList: List<WeatherDTO>){
         item {
             Text(
                 modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
-            text = "Forecast for upcoming days",
+            text = stringResource(R.string.forecast_for_upcoming),
             color = Color.White,
             style = MaterialTheme.typography.titleMedium,)
         }

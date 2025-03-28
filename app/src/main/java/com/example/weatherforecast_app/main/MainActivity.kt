@@ -27,6 +27,7 @@ import androidx.compose.material3.SnackbarHostState
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
@@ -37,6 +38,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -62,11 +64,16 @@ import com.example.weatherforecast_app.settings.view.SettingsScreen
 import com.example.weatherforecast_app.ui.theme.WeatherForecast_AppTheme
 import com.example.weatherforecast_app.components.BottomNavigationBar
 import com.example.weatherforecast_app.data.local.Alert.AlertLocalDataSourceImp
+import com.example.weatherforecast_app.data.local.preferences.PreferenceLocalDataSourceImp
 import com.example.weatherforecast_app.data.repo.alert_repo.AlertRepositoryImp
+import com.example.weatherforecast_app.data.repo.user_pref.UserPreferenceRepositoryImp
 import com.example.weatherforecast_app.favorite_weather_details.view.FavoriteDetailsScreen
 import com.example.weatherforecast_app.favorite_weather_details.viewmodel.FavoriteDetailsFactory
 import com.example.weatherforecast_app.favorite_weather_details.viewmodel.FavoriteDetailsViewModel
+import com.example.weatherforecast_app.settings.viewmodel.SettingsViewModel
+import com.example.weatherforecast_app.settings.viewmodel.SettingsViewModelFactory
 import com.example.weatherforecast_app.utils.Constants.REQUEST_CODE_NOTIFICATIONS
+import com.example.weatherforecast_app.utils.LanguageHelper
 import com.example.weatherforecast_app.weather_alerts.view.WeatherAlertsScreen
 import com.example.weatherforecast_app.weather_alerts.viewmodel.AlertsViewModel
 import com.example.weatherforecast_app.weather_alerts.viewmodel.AlertsViewModelFactory
@@ -78,6 +85,8 @@ class MainActivity : ComponentActivity() {
     private val TAG = "MainActivity"
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var locationViewModel: LocationViewModel
+    private lateinit var settingsViewModel: SettingsViewModel
+
     private val LOCATION_REQUEST_CODE = 550;
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -91,6 +100,13 @@ class MainActivity : ComponentActivity() {
             isAppearanceLightStatusBars = false // Ensures light icons
         }
 
+        settingsViewModel = ViewModelProvider(
+            this, SettingsViewModelFactory(
+                UserPreferenceRepositoryImp.getInstance(
+                    PreferenceLocalDataSourceImp(this)
+                )
+            )
+        )[SettingsViewModel::class.java]
 
         locationViewModel = ViewModelProvider(
             this,
@@ -179,12 +195,12 @@ class MainActivity : ComponentActivity() {
                     }
                 }else{
                     Log.i(TAG, "onStart: enable location services ")
-                    Toast.makeText(this, "Please enable location services so you see the latest weather status!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Please enable location services so you see the latest weather status!", Toast.LENGTH_LONG).show()
                     enableLocationServices()
                 }
             }else{
                 // Permissions denied
-                Toast.makeText(this, "Location permissions denied", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Location permissions denied", Toast.LENGTH_LONG).show()
             }
         }
 
@@ -261,7 +277,7 @@ class MainActivity : ComponentActivity() {
             }
 
             composable<ScreensRoute.Settings>{
-                SettingsScreen()
+                SettingsScreen(settingsViewModel)
             }
 
             composable<ScreensRoute.Map>{

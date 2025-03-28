@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">WeatherForecast</string>
+    <string name="app_name">SnowPulse</string>
+    <string name="sorry">Sorry we couldn\'t show Weather data now</string>
+    <string name="try_again">Try Again</string>
+    <string name="wind">Wind</string>
+    <string name="humidity">Humidity</string>
+    <string name="pressure">Pressure</string>
+    <string name="clouds">Clouds</string>
+    <string name="Feels_like">Feels like</string>
+    <string name="sunrise">Sunrise</string>
+    <string name="forecast_for_upcoming">Forecast for upcoming days</string>
 </resources>

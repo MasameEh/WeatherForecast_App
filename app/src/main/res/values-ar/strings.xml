@@ -1,2 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="app_name">SnowPulse</string>
+    <string name="sorry">"نأسف حدث خطأ "</string>
+    <string name="try_again">حاول مرة اخرى</string>
+    <string name="wind">الرياح</string>
+    <string name="humidity">الرطوبة</string>
+    <string name="pressure">الضغط</string>
+    <string name="clouds">السحاب</string>
+    <string name="Feels_like">تشعر كأنها</string>
+    <string name="sunrise">الشروق</string>
+    <string name="forecast_for_upcoming">توقعات الأيام القادمة</string>
+</resources>

@@ -4,7 +4,7 @@ import com.example.weatherforecast_app.data.local.Alert.IAlertLocalDataSource
 import com.example.weatherforecast_app.data.model.AlertInfo
 import kotlinx.coroutines.flow.Flow
 
-class AlertRepositoryImp(
+class AlertRepositoryImp private constructor(
     private val localDataSource: IAlertLocalDataSource
 ) : IAlertRepository {
 
