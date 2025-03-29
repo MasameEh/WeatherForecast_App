@@ -39,7 +39,7 @@ class HomeViewModel(private val repo: IWeatherRepository): ViewModel() {
         language: String = "en"
     ){
         viewModelScope.launch(Dispatchers.IO) {
-            val result = repo.getCurrentWeather(latitude, longitude)
+            val result = repo.getCurrentWeather(latitude, longitude, language)
             result
                 .catch {
                     ex->
@@ -59,7 +59,7 @@ class HomeViewModel(private val repo: IWeatherRepository): ViewModel() {
         language: String = "en"
     ){
         viewModelScope.launch(Dispatchers.IO) {
-            val result = repo.getWeatherForFiveDays(latitude, longitude)
+            val result = repo.getWeatherForFiveDays(latitude, longitude, language)
             result.catch {
                     ex->
                 Log.i(TAG, "getWeeklyWeather: $ex")

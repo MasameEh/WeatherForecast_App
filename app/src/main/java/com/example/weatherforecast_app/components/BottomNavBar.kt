@@ -1,5 +1,6 @@
 package com.example.weatherforecast_app.components
 
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -18,14 +19,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.weatherforecast_app.R
 import com.example.weatherforecast_app.main.ScreensRoute
 import com.example.weatherforecast_app.ui.theme.MediumBlue
 import com.example.weatherforecast_app.ui.theme.onSecondaryColor
 
 
 data class NavigationItem(
-    val title: String,
+    @StringRes val titleResId: Int,
     val icon: ImageVector,
     val route: ScreensRoute
 )
@@ -33,22 +36,22 @@ data class NavigationItem(
 
 val navigationItems = listOf(
     NavigationItem(
-        title = "Home",
+        titleResId = R.string.home,
         icon = Icons.Default.Home,
         route = ScreensRoute.Home
     ),
     NavigationItem(
-        title = "Favorite",
+        titleResId = R.string.fav,
         icon = Icons.Default.Favorite,
         route = ScreensRoute.Favorites
     ),
     NavigationItem(
-        title = "Alerts",
+        titleResId = R.string.alert,
         icon = Icons.Default.Notifications,
         route = ScreensRoute.WeatherAlerts
     ),
     NavigationItem(
-        title = "Setting",
+        titleResId = R.string.settings,
         icon = Icons.Default.Settings,
         route = ScreensRoute.Settings
     )
@@ -85,12 +88,12 @@ fun BottomNavigationBar(onItemSelected: (NavigationItem) -> Unit){
                 icon = {
                     Icon(
                         imageVector = item.icon,
-                        contentDescription = item.title,
+                        contentDescription = "${item.titleResId}"       ,
                     )
                 },
                 label = {
                     Text(
-                        text = item.title,
+                        text = stringResource(item.titleResId),
                         style = MaterialTheme.typography.labelSmall,
 
                     )

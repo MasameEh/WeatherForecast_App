@@ -54,6 +54,8 @@ import com.example.weatherforecast_app.ui.theme.LightBlue
 import com.example.weatherforecast_app.ui.theme.MediumBlue
 import com.example.weatherforecast_app.ui.theme.gradientBackground
 import com.example.weatherforecast_app.ui.theme.onSecondaryColor
+import com.example.weatherforecast_app.utils.LanguageHelper
+import com.example.weatherforecast_app.utils.formatNumberToLocale
 import com.example.weatherforecast_app.utils.formatUnixTimestamp
 import com.example.weatherforecast_app.utils.getDayOfWeek
 import com.example.weatherforecast_app.utils.getHourlyForecast
@@ -66,7 +68,6 @@ import kotlin.math.roundToInt
 private const val TAG = "HomeScreen"
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
     val locationState by viewModel.locationStateFlow.collectAsStateWithLifecycle()
@@ -76,8 +77,8 @@ fun HomeScreen(viewModel: HomeViewModel) {
 
     LaunchedEffect(locationState) {
         locationState?.let {
-            viewModel.getCurrentWeather(it.lat, it.lon)
-            viewModel.getWeeklyWeather(it.lat, it.lon)
+            viewModel.getCurrentWeather(it.lat, it.lon, LanguageHelper.getSystemLocale().language)
+            viewModel.getWeeklyWeather(it.lat, it.lon, LanguageHelper.getSystemLocale().language)
         }
     }
 
@@ -85,7 +86,9 @@ fun HomeScreen(viewModel: HomeViewModel) {
         ResponseState.Loading -> {
             Box(
                 contentAlignment = Alignment.Center ,
-                modifier = Modifier.fillMaxSize().gradientBackground()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .gradientBackground()
             ) {
                 CircularProgressIndicator(color = onSecondaryColor)
             }
@@ -110,7 +113,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
                     ),
                     onClick = {
                         locationState?.let {
-                            viewModel.getCurrentWeather(it.lat, it.lon)
+                            viewModel.getCurrentWeather(it.lat, it.lon, LanguageHelper.getSystemLocale().language)
                         }
                     }
                 ) {
@@ -126,7 +129,9 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 is ResponseState.Failure ->
                     Box(
                         contentAlignment = Alignment.Center ,
-                        modifier = Modifier.fillMaxSize().gradientBackground()
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .gradientBackground()
                     ) {
                         Text(
                             stringResource(R.string.sorry),
@@ -143,7 +148,8 @@ fun HomeScreen(viewModel: HomeViewModel) {
                             ),
                             onClick = {
                                 locationState?.let {
-                                    viewModel.getCurrentWeather(it.lat, it.lon)
+
+                                    viewModel.getCurrentWeather(it.lat, it.lon, LanguageHelper.getSystemLocale().language)
                                 }
                             }
                         ) {
@@ -153,7 +159,9 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 ResponseState.Loading ->
                     Box(
                     contentAlignment = Alignment.Center ,
-                    modifier = Modifier.fillMaxSize().gradientBackground()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .gradientBackground()
                 ) {
                     CircularProgressIndicator(color = onSecondaryColor)
                 }
@@ -206,7 +214,6 @@ fun CurrentWeatherUI(currentWeatherData: WeatherDTO, weeklyWeatherData: List<Wea
             .fillMaxWidth()
     ) {
 
-
 //        GlideImage(
 //            model = "https://openweathermap.org/img/wn/${weatherDto.weather[0].icon}@2x.png",
 //            contentDescription = " ",
@@ -221,36 +228,44 @@ fun CurrentWeatherUI(currentWeatherData: WeatherDTO, weeklyWeatherData: List<Wea
         )
         currentWeatherData.placeInfo.sunrise?.let { formatUnixTimestamp(it) }?.let {
             TemperatureDisplay(
-                temperature = "${currentWeatherData.mainWeatherData.temperature.roundToInt()}",
-                feelsLikeTemp = "${currentWeatherData.mainWeatherData.feels_like}",
+                temperature = currentWeatherData.mainWeatherData.temperature.roundToInt(),
+                feelsLikeTemp = currentWeatherData.mainWeatherData.feels_like.roundToInt(),
                 weatherStatus = currentWeatherData.weather[0].main + " / " + currentWeatherData.weather[0].description,
-                sunriseTime = it
+                sunriseTime = it,
+                unit = "Celsius"
             )
         }
         Spacer(Modifier.height(8.dp))
         Row(
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            IconSquare(R.drawable.wind, stringResource(R.string.wind),"${currentWeatherData.wind.speed}", "m/s")
-            IconSquare(R.drawable.humidity, stringResource(R.string.humidity), "${currentWeatherData.mainWeatherData.humidity}", "%")
-            IconSquare(R.drawable.pressure, stringResource(R.string.pressure), "${currentWeatherData.mainWeatherData.pressure}", "hpa")
-            IconSquare(R.drawable.clouds, stringResource(R.string.clouds), " ${currentWeatherData.clouds.all}", "%")
+            IconSquare(R.drawable.wind, stringResource(R.string.wind),currentWeatherData.wind.speed.roundToInt(), stringResource(R.string.meter_per_sec))
+            IconSquare(R.drawable.humidity, stringResource(R.string.humidity), currentWeatherData.mainWeatherData.humidity, "%")
+            IconSquare(R.drawable.pressure, stringResource(R.string.pressure), currentWeatherData.mainWeatherData.pressure, stringResource(R.string.pascal))
+            IconSquare(R.drawable.clouds, stringResource(R.string.clouds),  currentWeatherData.clouds.all, "%")
         }
         Spacer(Modifier.height(10.dp))
-        HourlyWeather(getHourlyForecast(weeklyWeatherData))
+        HourlyWeather(getHourlyForecast(weeklyWeatherData), "Celsius")
         Spacer(Modifier.height(10.dp))
-        WeeklyWeather(getWeeklyForecast(weeklyWeatherData))
+        WeeklyWeather(getWeeklyForecast(weeklyWeatherData), "Celsius")
     }
 }
 
 
 @Composable
-fun TemperatureDisplay(temperature: String,
+fun TemperatureDisplay(temperature: Int,
                        weatherStatus: String,
-                       feelsLikeTemp: String = "25",
-                       unit: String = "°C",
+                       feelsLikeTemp: Int,
+                       unit: String,
                        sunriseTime: String = "5:50"
 ) {
+    val context = LocalContext.current
+    val unitResId = when (unit) {
+        "Celsius" -> R.string.celsius
+        "Fahrenheit" -> R.string.fahrenheit
+        "Kelvin" -> R.string.kelvin
+        else -> R.string.celsius
+    }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -259,13 +274,13 @@ fun TemperatureDisplay(temperature: String,
             .fillMaxWidth()
     ) {
         Text(
-            text = temperature,
+            text = formatNumberToLocale(temperature, context),
             color = Color.White,
             fontSize = 32.sp,
             style = MaterialTheme.typography.titleLarge
         )
         Text(
-            text = unit,
+            text = stringResource(unitResId),
             color = Color.White,
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.padding(start = 4.dp, bottom = 5.dp)
@@ -285,13 +300,13 @@ fun TemperatureDisplay(temperature: String,
             .fillMaxWidth()
     ) {
         Text(
-            text = "${stringResource(R.string.Feels_like)} $feelsLikeTemp",
+            text = "${stringResource(R.string.Feels_like)} ${formatNumberToLocale(feelsLikeTemp, context)}",
             color = Color.White.copy(alpha = .6f),
             fontSize = 14.sp,
             style = MaterialTheme.typography.labelSmall
         )
         Text(
-            text = unit,
+            text = stringResource(unitResId),
             color = Color.White.copy(alpha = .6f),
             style = MaterialTheme.typography.labelSmall,
             modifier = Modifier.padding(start = 4.dp)
@@ -321,7 +336,9 @@ fun TemperatureDisplay(temperature: String,
 
 
 @Composable
-fun IconSquare(iconResId: Int, description: String, measurement: String, unit: String){
+fun IconSquare(iconResId: Int, description: String, measurement: Int, unit: String){
+    val context = LocalContext.current
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -348,7 +365,7 @@ fun IconSquare(iconResId: Int, description: String, measurement: String, unit: S
         )
 
         Text(
-            text = "$measurement $unit",
+            text = "${formatNumberToLocale(measurement, context)} $unit",
             color = Color.White,
             style = MaterialTheme.typography.labelSmall
         )
@@ -358,13 +375,13 @@ fun IconSquare(iconResId: Int, description: String, measurement: String, unit: S
 
 
 @Composable
-fun HourlyWeather(weatherList: List<WeatherDTO>){
+fun HourlyWeather(weatherList: List<WeatherDTO>, unit: String){
 
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(10.dp))
     {
         items(weatherList.size) {
-            HourlyWeatherItem(weatherList[it])
+            HourlyWeatherItem(weatherList[it], unit)
         }
     }
 
@@ -374,8 +391,16 @@ fun HourlyWeather(weatherList: List<WeatherDTO>){
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun HourlyWeatherItem(weatherDTO: WeatherDTO){
-    formatUnixTimestamp(weatherDTO.dateTime.toLong())
+fun HourlyWeatherItem(weatherDTO: WeatherDTO, unit: String){
+
+    val context = LocalContext.current
+
+    val unitResId = when (unit) {
+        "Celsius" -> R.string.celsius
+        "Fahrenheit" -> R.string.fahrenheit
+        "Kelvin" -> R.string.kelvin
+        else -> R.string.celsius
+    }
 
     Box(
         modifier = Modifier
@@ -409,12 +434,12 @@ fun HourlyWeatherItem(weatherDTO: WeatherDTO){
             Spacer(Modifier.height(5.dp))
             Row {
                 Text(
-                    text = "${weatherDTO.mainWeatherData.temperature.roundToInt()}",
+                    text = formatNumberToLocale(weatherDTO.mainWeatherData.temperature.roundToInt(), context),
                     color = Color.White,
                     style = MaterialTheme.typography.labelMedium
                 )
                 Text(
-                    text = "°C",
+                    text = stringResource(unitResId),
                     color = Color.White,
                     style = MaterialTheme.typography.labelSmall,
                     modifier = Modifier.padding(start = 4.dp, bottom = 5.dp)
@@ -426,7 +451,7 @@ fun HourlyWeatherItem(weatherDTO: WeatherDTO){
 }
 
 @Composable
-fun WeeklyWeather(weatherList: List<WeatherDTO>){
+fun WeeklyWeather(weatherList: List<WeatherDTO>, unit: String){
     Log.i(TAG, "WeeklyWeather: ${weatherList.size}")
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -441,7 +466,7 @@ fun WeeklyWeather(weatherList: List<WeatherDTO>){
             style = MaterialTheme.typography.titleMedium,)
         }
         items(weatherList.size){
-            WeeklyWeatherItem(weatherList[it])
+            WeeklyWeatherItem(weatherList[it], unit)
         }
     }
 
@@ -450,8 +475,21 @@ fun WeeklyWeather(weatherList: List<WeatherDTO>){
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun WeeklyWeatherItem(weatherDTO: WeatherDTO){
-    val dayOfWeek = getDayOfWeek(weatherDTO)
+fun WeeklyWeatherItem(weatherDTO: WeatherDTO, unit: String){
+
+    val context = LocalContext.current
+    val dayOfWeek = if (getDayOfWeek(weatherDTO) == "Today" && LanguageHelper.getSystemLocale().language == "ar"){
+        "اليوم"
+    }else {
+        getDayOfWeek(weatherDTO)
+    }
+
+    val unitResId = when (unit) {
+        "Celsius" -> R.string.celsius
+        "Fahrenheit" -> R.string.fahrenheit
+        "Kelvin" -> R.string.kelvin
+        else -> R.string.celsius
+    }
 
     Log.i(TAG, "dayOfWeek: ${dayOfWeek}")
     Card(
@@ -498,15 +536,16 @@ fun WeeklyWeatherItem(weatherDTO: WeatherDTO){
                 verticalAlignment = Alignment.CenterVertically,
                 ) {
                 Text(
-                    text = "${weatherDTO.mainWeatherData.temp_max.roundToInt()} / ${weatherDTO.mainWeatherData.temp_min.roundToInt()}",
+
+                    text = "${formatNumberToLocale(weatherDTO.mainWeatherData.temp_max.roundToInt(), context)} / ${formatNumberToLocale(weatherDTO.mainWeatherData.temp_min.roundToInt(), context)}",
                     color = MediumBlue,
                     style = MaterialTheme.typography.labelMedium
                 )
                 Text(
-                    text = "°C",
+                    text = stringResource(unitResId),
                     color = MediumBlue,
                     fontWeight = FontWeight.Normal,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.labelSmall,
                     modifier = Modifier.padding(start = 4.dp, bottom = 5.dp)
                 )
             }

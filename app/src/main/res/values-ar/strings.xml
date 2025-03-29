@@ -10,4 +10,24 @@
     <string name="Feels_like">تشعر كأنها</string>
     <string name="sunrise">الشروق</string>
     <string name="forecast_for_upcoming">توقعات الأيام القادمة</string>
+    <string name="celsius">"درجة "</string>
+    <string name="fahrenheit">فهرنهايت</string>
+    <string name="kelvin">كلفن</string>
+    <string name="home">الرئيسية</string>
+    <string name="fav">المفضلات</string>
+    <string name="alert">تنبيهات</string>
+    <string name="settings">اعدادات</string>
+    <string name="pascal">باسكال</string>
+    <string name="meter_per_sec">م/ث</string>
+    <string name="mile_per_hour">ميل/س</string>
+    <string name="lang">اللغة</string>
+    <string name="wind_speed_unit">وحدة سرعة الرياح</string>
+    <string name="temp_unit">وحدة درجة الحرارة</string>
+    <string name="location">الموقع</string>
+    <string name="gps">نظام تحديد الموقع</string>
+    <string name="map">الخريطة</string>
+    <string name="fav_locations">المواقع المفضلة</string>
+    <string name="en">الانجليزية</string>
+    <string name="ar">العربية</string>
+    <string name="system_def">لغة الجهاز</string>
 </resources>

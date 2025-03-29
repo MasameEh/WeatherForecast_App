@@ -9,4 +9,24 @@
     <string name="Feels_like">Feels like</string>
     <string name="sunrise">Sunrise</string>
     <string name="forecast_for_upcoming">Forecast for upcoming days</string>
+    <string name="celsius">°C</string>
+    <string name="fahrenheit">°F</string>
+    <string name="kelvin">K</string>
+    <string name="home">Home</string>
+    <string name="fav">Favorites</string>
+    <string name="alert">Alerts</string>
+    <string name="settings">Settings</string>
+    <string name="pascal">hpa</string>
+    <string name="meter_per_sec">m/s</string>
+    <string name="mile_per_hour">m/h</string>
+    <string name="lang">Language</string>
+    <string name="wind_speed_unit">Wind Speed Unit</string>
+    <string name="temp_unit">Temperature Unit</string>
+    <string name="location">Location</string>
+    <string name="gps">GPS</string>
+    <string name="map">Map</string>
+    <string name="fav_locations">Favorite Locations</string>
+    <string name="en">English</string>
+    <string name="ar">Arabic</string>
+    <string name="system_def">System Default</string>
 </resources>

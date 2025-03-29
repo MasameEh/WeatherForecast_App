@@ -4,6 +4,7 @@ import android.content.Context
 import android.location.Address
 import android.location.Geocoder
 import com.example.weatherforecast_app.data.model.WeatherDTO
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -47,10 +48,8 @@ fun getLocationName(context: Context, lat: Double, lng: Double): Address? {
     return try {
         val addresses = geocoder.getFromLocation(lat, lng, 1)
         val address = addresses?.get(0)
-        val city = address?.locality ?: "Unknown City"
-        val country = address?.countryName ?: "Unknown Country"
+
         //addresses?.get(0)?.getAddressLine(0) ?: "Unknown location"
-        "$city, $country"
         return address
 
     } catch (e: Exception) {
@@ -58,3 +57,9 @@ fun getLocationName(context: Context, lat: Double, lng: Double): Address? {
     }
 }
 
+
+fun formatNumberToLocale(value: Int, context: Context): String {
+    val locale =
+        context.resources.configuration.locales[0]
+    return NumberFormat.getInstance(locale).format(value)
+}

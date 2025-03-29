@@ -4,14 +4,14 @@ import kotlinx.coroutines.flow.Flow
 
 interface IUserPreferenceRepository {
 
-    suspend fun updateLanguage(language: String)
+    fun getUserLanguage(): String?
+    fun getTemperatureUnit(): String?
+    fun getWindSpeedUnit(): String?
 
-    suspend fun updateTemperatureUnit(unit: String)
+     fun updateLanguage(language: String)
+     fun updateTemperatureUnit(unit: String)
 
-    suspend fun updateWindSpeedUnit(unit: String)
+     fun updateWindSpeedUnit(unit: String)
 
 
-    val language: Flow<String>
-    val temperature: Flow<String>
-    val wind: Flow<String>
 }
