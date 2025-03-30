@@ -9,15 +9,20 @@ import kotlinx.coroutines.flow.flow
 private const val TAG = "WeatherRemoteDataSource"
 class WeatherRemoteDataSourceImp : IWeatherRemoteDataSource {
 
-    override fun getWeatherForFiveDays(latitude: Double,
-                                               longitude: Double,
-                                               language: String): Flow<WeatherResponse> {
+    override fun getWeatherForFiveDays(
+        latitude: Double,
+        longitude: Double,
+        language: String,
+        tempUnit: String?,
+        ): Flow<WeatherResponse> {
         Log.i(TAG, "getWeatherForFiveDays: $language")
+        Log.i(TAG, "getWeatherForFiveDays: $tempUnit")
         return flow{
             val result = RetrofitHelper.weatherService.getWeatherForFiveDays(
                 latitude = latitude,
                 longitude = longitude,
-                language = language
+                language = language,
+                units = tempUnit
             )
             emit(result)
         }
@@ -26,13 +31,15 @@ class WeatherRemoteDataSourceImp : IWeatherRemoteDataSource {
     override fun getCurrentWeather(
         latitude: Double,
         longitude: Double,
-        language: String
+        language: String,
+        tempUnit: String?,
     ): Flow<WeatherDTO> {
         return flow{
             val result = RetrofitHelper.weatherService.getCurrentWeather(
                 latitude = latitude,
                 longitude = longitude,
-                language = language
+                language = language,
+                units = tempUnit
             )
             emit(result)
         }

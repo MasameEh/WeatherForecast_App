@@ -18,7 +18,7 @@ class CacheHelper private constructor(context: Context) {
 
     // Get string value
     fun getString(key: String): String? {
-        return sharedPreferences.getString(key, "System Default")
+        return sharedPreferences.getString(key, null)
     }
 
     // Save boolean value

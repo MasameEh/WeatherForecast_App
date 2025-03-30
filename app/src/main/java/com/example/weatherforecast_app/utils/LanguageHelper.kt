@@ -37,8 +37,8 @@ object LanguageHelper {
             val locale = Locale(langCode)
             Locale.setDefault(locale)
             val config = context.resources.configuration.apply {
-                setLayoutDirection(locale)
                 setLocale(locale)
+                setLayoutDirection(locale)
             }
 
             context.resources.updateConfiguration(config, context.resources.displayMetrics)

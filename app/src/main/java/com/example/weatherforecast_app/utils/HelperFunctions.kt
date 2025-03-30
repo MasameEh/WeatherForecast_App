@@ -63,3 +63,7 @@ fun formatNumberToLocale(value: Int, context: Context): String {
         context.resources.configuration.locales[0]
     return NumberFormat.getInstance(locale).format(value)
 }
+
+fun metersPerSecondToMilesPerHour(speedInMetersPerSecond: Double): Double {
+    return speedInMetersPerSecond * 2.23694
+}

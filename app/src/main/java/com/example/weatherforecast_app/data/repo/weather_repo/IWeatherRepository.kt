@@ -9,12 +9,14 @@ interface IWeatherRepository {
      fun getWeatherForFiveDays(
         latitude: Double,
         longitude: Double,
-        language: String = "en"
+        language: String = "en" ,
+        tempUnit: String?
     ): Flow<WeatherResponse>
 
      fun getCurrentWeather(
         latitude: Double,
         longitude: Double,
-        language: String = "en"
+        language: String = "en",
+        tempUnit: String?
     ): Flow<WeatherDTO>
 }

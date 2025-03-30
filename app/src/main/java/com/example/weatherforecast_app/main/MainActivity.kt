@@ -72,6 +72,7 @@ import com.example.weatherforecast_app.favorite_weather_details.viewmodel.Favori
 import com.example.weatherforecast_app.favorite_weather_details.viewmodel.FavoriteDetailsViewModel
 import com.example.weatherforecast_app.settings.viewmodel.SettingsViewModel
 import com.example.weatherforecast_app.settings.viewmodel.SettingsViewModelFactory
+import com.example.weatherforecast_app.utils.Constants.LOCATION_REQUEST_CODE
 import com.example.weatherforecast_app.utils.Constants.REQUEST_CODE_NOTIFICATIONS
 import com.example.weatherforecast_app.utils.LanguageHelper
 import com.example.weatherforecast_app.weather_alerts.view.WeatherAlertsScreen
@@ -84,11 +85,14 @@ import com.google.android.gms.location.LocationServices
 class MainActivity : ComponentActivity() {
     lateinit var navHostController: NavHostController
     private val TAG = "MainActivity"
+
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var locationViewModel: LocationViewModel
     private lateinit var settingsViewModel: SettingsViewModel
-    private lateinit var userLang: String
-    private val LOCATION_REQUEST_CODE = 550;
+
+    private lateinit var userLangPref: String
+
+
 
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -97,11 +101,13 @@ class MainActivity : ComponentActivity() {
         
         enableEdgeToEdge()
 
+        // Status Bar Style
         window.setStatusBarColor(ContextCompat.getColor(this, R.color.dark_blue));
         WindowCompat.getInsetsController(window, window.decorView).apply {
             isAppearanceLightStatusBars = false // Ensures light icons
         }
 
+        // ViewModel Init
         settingsViewModel = ViewModelProvider(
             this, SettingsViewModelFactory(
                 UserPreferenceRepositoryImp.getInstance(
@@ -122,9 +128,12 @@ class MainActivity : ComponentActivity() {
             )
         )[LocationViewModel::class.java]
 
-        userLang = settingsViewModel.getLanguagePref() ?: "System Default"
+        // User Preferences
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
+            userLangPref = settingsViewModel.getLanguagePref() ?: "System Default"
+            LanguageHelper.setAppLocale(this, userLangPref)
+        }
 
-        LanguageHelper.setAppLocale(this, userLang)
 
         setContent {
             WeatherForecast_AppTheme(dynamicColor = false) {
@@ -143,6 +152,9 @@ class MainActivity : ComponentActivity() {
             HomeFactory(
                 WeatherRepositoryImp.getInstance(
                     WeatherRemoteDataSourceImp()
+                ),
+                UserPreferenceRepositoryImp.getInstance(
+                    CacheHelper.getInstance(this)
                 )
             )
         ).get(HomeViewModel::class.java)
@@ -310,6 +322,9 @@ class MainActivity : ComponentActivity() {
                         FavoriteDetailsFactory(
                             WeatherRepositoryImp.getInstance(
                                 WeatherRemoteDataSourceImp()
+                            ),
+                            UserPreferenceRepositoryImp.getInstance(
+                                CacheHelper.getInstance(this@MainActivity)
                             )
                         )
                 )[FavoriteDetailsViewModel::class.java]

@@ -52,6 +52,7 @@ import com.example.weatherforecast_app.ui.theme.LightBlue
 import com.example.weatherforecast_app.ui.theme.MediumBlue
 import com.example.weatherforecast_app.ui.theme.gradientBackground
 import com.example.weatherforecast_app.ui.theme.onSecondaryColor
+import com.example.weatherforecast_app.utils.LanguageHelper
 import com.example.weatherforecast_app.utils.ResponseState
 import com.example.weatherforecast_app.utils.formatUnixTimestamp
 import com.example.weatherforecast_app.utils.getDayOfWeek
@@ -75,9 +76,12 @@ fun FavoriteDetailsScreen(
     val currentWeatherState by viewModel.currentWeatherData.collectAsStateWithLifecycle()
     val weeklyWeatherState by viewModel.weeklyWeatherData.collectAsStateWithLifecycle()
 
+    val userTempUnitPref = viewModel.getTemperatureUnitPref()
+    val userWindUnitPref = viewModel.getWindUnitPref() ?: "m/s"
+
     LaunchedEffect(Unit) {
-        viewModel.getCurrentWeather(latitude, longitude)
-        viewModel.getWeeklyWeather(latitude, longitude)
+        viewModel.getCurrentWeather(latitude, longitude, LanguageHelper.getSystemLocale().language, userTempUnitPref)
+        viewModel.getWeeklyWeather(latitude, longitude, LanguageHelper.getSystemLocale().language, userTempUnitPref)
     }
 
     when(currentWeatherState){

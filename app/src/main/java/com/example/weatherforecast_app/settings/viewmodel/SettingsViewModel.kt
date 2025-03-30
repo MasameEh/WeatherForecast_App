@@ -3,7 +3,6 @@ package com.example.weatherforecast_app.settings.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.example.weatherforecast_app.data.repo.user_pref.IUserPreferenceRepository
 
 
@@ -19,6 +18,14 @@ class SettingsViewModel(
         repo.updateLanguage(language)
     }
 
+
+    fun getTemperatureUnitPref(): String?{
+        return repo.getTemperatureUnit()
+    }
+
+    fun getWindUnitPref(): String?{
+        return repo.getWindSpeedUnit()
+    }
 
     fun updateTemperatureUnit(unit: String){
         repo.updateTemperatureUnit(unit)

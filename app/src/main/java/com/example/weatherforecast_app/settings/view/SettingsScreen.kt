@@ -1,7 +1,13 @@
 package com.example.weatherforecast_app.settings.view
 
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import android.util.Log
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,20 +20,13 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
+
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -43,15 +42,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.weatherforecast_app.R
 import com.example.weatherforecast_app.settings.viewmodel.SettingsViewModel
+import com.example.weatherforecast_app.ui.theme.LightBlue
+
 import com.example.weatherforecast_app.ui.theme.gradientBackground
 import com.example.weatherforecast_app.utils.LanguageHelper
 
-var i = 0
 
 private const val TAG = "SettingsScreen"
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,12 +62,16 @@ private const val TAG = "SettingsScreen"
 fun SettingsScreen(viewModel: SettingsViewModel) {
 
     var selectedLanguage by remember { mutableStateOf("") }
+    var selectedTempUnit by remember { mutableStateOf("") }
+    var selectedWindUnit by remember { mutableStateOf("") }
 
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         selectedLanguage = viewModel.getLanguagePref() ?: "System Default"
-        LanguageHelper.setAppLocale(context, selectedLanguage)
+        selectedTempUnit = viewModel.getTemperatureUnitPref() ?: "Celsius"
+        selectedWindUnit = viewModel.getWindUnitPref() ?: "m/s"
+
     }
     Scaffold(
         modifier = Modifier
@@ -93,114 +100,153 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                 .fillMaxSize()
                 .padding(innerPadding)
                 .gradientBackground()
+                .padding(start = 8.dp, end = 8.dp)
                 .statusBarsPadding()
                 .navigationBarsPadding()
         ) {
-            SettingItem(
-                name = stringResource(R.string.lang),
-                options = listOf(
-                    stringResource(R.string.en),
-                    stringResource(R.string.ar),
-                    stringResource(R.string.system_def)
-                ),
-                selectedOption = selectedLanguage,
-                onOptionSelected = { newLanguage ->
-                    selectedLanguage = newLanguage
-                    viewModel.updateLanguage(newLanguage)
-                    LanguageHelper.setAppLocale(context, selectedLanguage)
-                }
-            )
-            HorizontalDivider()
-        }
-    }
-}
-
-@Composable
-fun SettingItem(
-    name: String,
-    options: List<String>,
-    selectedOption: String,
-    onOptionSelected: (String) -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Text(
-            text = name,
-            style = MaterialTheme.typography.titleLarge,
-            color = Color.White
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            options.forEach { option ->
-                FilterChip(
-                    selected = option == selectedOption,
-                    onClick = { onOptionSelected(option) },
-                    label = { Text(text = option, color = Color.White) },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun CustomDropdownMenu(
-    options: List<String>,
-    selectedOption: String,
-    onOptionSelected: (String) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Column{
-        OutlinedButton(
-            onClick = { expanded = true }
-        ) {
-            Text(
-                text = selectedOption,
-                color = Color.White
-            )
-            Icon(
-                imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = "Language options",
-                tint = Color.White
-            )
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    onClick = {
-                        onOptionSelected(option)
-                        expanded = false
+            Row {
+                SettingsItem(
+                    Modifier.weight(1f),
+                    name = stringResource(R.string.lang),
+                    listOf("English", "Arabic", "System Default"),
+                    onOptionSelected = {
+                        Log.i(TAG, "SettingsScreen: $it")
+                        selectedLanguage = it
+                        viewModel.updateLanguage(it)
+                        LanguageHelper.setAppLocale(context, it)
                     },
-                    text = {
-                        Text(
-                            text = option,
-                            color = if (option == selectedOption) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                    selectedOption = selectedLanguage,
                 )
-                HorizontalDivider()
+                Spacer(Modifier.width(10.dp))
+                SettingsItem(
+                    Modifier.weight(1f),
+                    name = stringResource(R.string.temp_unit),
+                    listOf("Celsius", "Fahrenheit", "kelvin"), {
+                        selectedTempUnit = it
+                        viewModel.updateTemperatureUnit(it)
+                    },
+                    selectedTempUnit)
             }
-
+            Spacer(Modifier.width(20.dp))
+            Row {
+                SettingsItem(
+                    Modifier.weight(1f),
+                    name = stringResource(R.string.wind_speed_unit),
+                    listOf("m/s", "m/h"),
+                    onOptionSelected = {
+                        selectedWindUnit = it
+                        viewModel.updateWindSpeedUnit(it)
+                    },
+                    selectedOption = selectedWindUnit,
+                )
+                Spacer(Modifier.width(10.dp))
+                SettingsItem(
+                    Modifier.weight(1f),
+                    name = stringResource(R.string.notification),
+                    listOf("Enable", "Disable"), {
+                        //selectedTempUnit = it
+                        //viewModel.updateTemperatureUnit(it)
+                    },
+                    selectedTempUnit)
+            }
+            SettingsItem(
+                Modifier,
+                name = stringResource(R.string.location),
+                listOf("GPS", "MAP"), {
+                    //selectedTempUnit = it
+                    //viewModel.updateTemperatureUnit(it)
+                },
+                selectedTempUnit
+            )
         }
     }
 }
+
+
+
+@Composable
+fun SettingsItem(
+    modifier: Modifier,
+    name: String,
+    radioOptions: List<String>,
+    onOptionSelected: (String) -> Unit,
+    selectedOption:  String,
+) {
+
+    Column(
+        modifier
+            .background(LightBlue.copy(alpha = 0.5f))
+            .fillMaxWidth()
+            .border(2.dp, LightBlue, shape = RoundedCornerShape(8.dp))
+    ) {
+
+        Box(
+            Modifier.fillMaxWidth().padding(8.dp),
+            contentAlignment = Alignment.Center
+        ){
+            Text(
+                text = name,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                fontSize = 22.sp,
+                style = MaterialTheme.typography.labelMedium.copy(lineHeight = 30.sp)
+            )
+        }
+        Column(Modifier.selectableGroup()) {
+            radioOptions.forEach { text ->
+
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .selectable(
+                            selected =( text  == selectedOption),
+                            onClick = { onOptionSelected(text) },
+                            role = Role.RadioButton
+                        )
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = (text == selectedOption),
+                        onClick = null // null recommended for accessibility with screen readers
+                    )
+                    Text(
+                        text = stringResource(getResource(text)),
+                        style = MaterialTheme.typography.labelMedium.copy(lineHeight = 25.sp),
+                        color = Color.White,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+
 
 @StringRes
-fun getLanguageResource(languageCode: String): Int {
-    return when (languageCode) {
+fun getResource(language: String): Int {
+    return when (language) {
         "English" -> R.string.en
         "Arabic" -> R.string.ar
+        "Celsius" -> R.string.c
+        "Fahrenheit" -> R.string.f
+        "kelvin" -> R.string.k
+        "m/s" -> R.string.meter_per_sec
+        "m/h" -> R.string.mile_per_hour
+        "MAP" -> R.string.map
+        "GPS" -> R.string.gps
+        "Enable" -> R.string.enable
+        "Disable" -> R.string.disable
         else -> R.string.system_def
     }
+}
+
+fun Context.findActivity() : Activity? = when(this){
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }

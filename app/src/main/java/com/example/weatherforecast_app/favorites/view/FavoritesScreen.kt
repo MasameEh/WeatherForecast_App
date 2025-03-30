@@ -53,6 +53,7 @@ import com.example.weatherforecast_app.R
 import com.example.weatherforecast_app.data.model.LocationInfo
 import com.example.weatherforecast_app.favorites.viewmodel.FavoriteViewModel
 import com.example.weatherforecast_app.ui.theme.MediumBlue
+import com.example.weatherforecast_app.ui.theme.Tertiary
 import com.example.weatherforecast_app.ui.theme.gradientBackground
 import com.example.weatherforecast_app.ui.theme.onSecondaryColor
 import com.example.weatherforecast_app.utils.ResponseState
@@ -92,7 +93,7 @@ fun FavoritesScreen(viewModel: FavoriteViewModel,
                 floatingActionButton = {
                     FloatingActionButton(
                         onClick = { navigateToMap.invoke() },
-                        containerColor = Color(0xff5e1875),
+                        containerColor = Tertiary,
                     ) {
                         Icon(Icons.Default.Add, tint = Color.White,contentDescription = "Add Location")
                     } },

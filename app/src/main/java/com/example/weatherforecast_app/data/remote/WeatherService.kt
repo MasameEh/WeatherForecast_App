@@ -11,17 +11,17 @@ interface WeatherService {
     suspend fun getWeatherForFiveDays(
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double,
-        @Query("units") units: String = "metric",
+        @Query("units") units: String?,
         @Query("lang") language: String = "en",
-        @Query("appid") apiKey: String = Constants.API_KEY,
+        @Query("appid") apiKey: String = Constants.WEATHER_API_KEY,
         ): WeatherResponse
 
     @GET("weather")
     suspend fun getCurrentWeather(
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double,
-        @Query("units") units: String = "metric",
+        @Query("units") units: String?,
         @Query("lang") language: String = "en",
-        @Query("appid") apiKey: String = Constants.API_KEY,
+        @Query("appid") apiKey: String = Constants.WEATHER_API_KEY,
     ): WeatherDTO
 }

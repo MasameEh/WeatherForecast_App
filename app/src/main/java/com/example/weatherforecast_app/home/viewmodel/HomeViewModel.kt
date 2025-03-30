@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.weatherforecast_app.utils.ResponseState
 import com.example.weatherforecast_app.data.model.Coordinate
+import com.example.weatherforecast_app.data.repo.user_pref.IUserPreferenceRepository
 import com.example.weatherforecast_app.data.repo.weather_repo.IWeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,10 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "HomeViewModel"
 
-class HomeViewModel(private val repo: IWeatherRepository): ViewModel() {
+class HomeViewModel(
+    private val weatherRepo: IWeatherRepository,
+    private val userPrefRepo: IUserPreferenceRepository
+): ViewModel() {
 
     private val mutableCurrentWeather: MutableStateFlow<ResponseState> = MutableStateFlow(
         ResponseState.Loading)
@@ -36,10 +40,11 @@ class HomeViewModel(private val repo: IWeatherRepository): ViewModel() {
     fun getCurrentWeather(
         latitude: Double,
         longitude: Double,
-        language: String = "en"
+        language: String = "en",
+        tempUnit: String?
     ){
         viewModelScope.launch(Dispatchers.IO) {
-            val result = repo.getCurrentWeather(latitude, longitude, language)
+            val result = weatherRepo.getCurrentWeather(latitude, longitude, language, tempUnit)
             result
                 .catch {
                     ex->
@@ -56,10 +61,11 @@ class HomeViewModel(private val repo: IWeatherRepository): ViewModel() {
     fun getWeeklyWeather(
         latitude: Double,
         longitude: Double,
-        language: String = "en"
+        language: String = "en",
+        tempUnit: String?
     ){
         viewModelScope.launch(Dispatchers.IO) {
-            val result = repo.getWeatherForFiveDays(latitude, longitude, language)
+            val result = weatherRepo.getWeatherForFiveDays(latitude, longitude, language, tempUnit)
             result.catch {
                     ex->
                 Log.i(TAG, "getWeeklyWeather: $ex")
@@ -70,12 +76,28 @@ class HomeViewModel(private val repo: IWeatherRepository): ViewModel() {
             }
         }
     }
+
+    fun getTemperatureUnitPref(): String?{
+
+         val temperatureUnitPref = when(userPrefRepo.getTemperatureUnit()){
+             "Celsius" -> "metric"
+             "Fahrenheit" -> "imperial"
+             else -> null
+        }
+        return temperatureUnitPref
+    }
+
+    fun getWindUnitPref(): String?{
+        return userPrefRepo.getWindSpeedUnit()
+    }
 }
 
 
 
-class HomeFactory(private val repo: IWeatherRepository): ViewModelProvider.Factory{
+class HomeFactory(private val weatherRepo: IWeatherRepository,
+                  private val userPrefRepo: IUserPreferenceRepository
+): ViewModelProvider.Factory{
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return HomeViewModel(repo) as T
+        return HomeViewModel(weatherRepo, userPrefRepo) as T
     }
 }

@@ -12,17 +12,19 @@ class WeatherRepositoryImp private constructor(
     override fun getWeatherForFiveDays(
         latitude: Double,
         longitude: Double,
-        language: String
+        language: String,
+        tempUnit: String?
     ): Flow<WeatherResponse> {
-        return remoteDataSource.getWeatherForFiveDays(latitude, longitude, language)
+        return remoteDataSource.getWeatherForFiveDays(latitude, longitude, language, tempUnit)
     }
 
     override fun getCurrentWeather(
         latitude: Double,
         longitude: Double,
-        language: String
+        language: String,
+        tempUnit: String?
     ): Flow<WeatherDTO> {
-        return remoteDataSource.getCurrentWeather(latitude, longitude, language)
+        return remoteDataSource.getCurrentWeather(latitude, longitude, language, tempUnit)
     }
 
 

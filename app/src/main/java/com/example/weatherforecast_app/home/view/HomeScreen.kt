@@ -1,5 +1,6 @@
 package com.example.weatherforecast_app.home.view
 
+import android.health.connect.datatypes.units.Temperature
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -60,6 +61,7 @@ import com.example.weatherforecast_app.utils.formatUnixTimestamp
 import com.example.weatherforecast_app.utils.getDayOfWeek
 import com.example.weatherforecast_app.utils.getHourlyForecast
 import com.example.weatherforecast_app.utils.getWeeklyForecast
+import com.example.weatherforecast_app.utils.metersPerSecondToMilesPerHour
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -74,11 +76,27 @@ fun HomeScreen(viewModel: HomeViewModel) {
     val currentWeatherState by viewModel.currentWeatherData.collectAsStateWithLifecycle()
     val weeklyWeatherState by viewModel.weeklyWeatherData.collectAsStateWithLifecycle()
 
+    val userTempUnitPref = viewModel.getTemperatureUnitPref()
+    val userWindUnitPref = viewModel.getWindUnitPref() ?: "m/s"
+
+    Log.i(TAG, "userTempUnitPref: $userTempUnitPref ")
+    Log.i(TAG, "userWindUnitPref: $userWindUnitPref ")
 
     LaunchedEffect(locationState) {
         locationState?.let {
-            viewModel.getCurrentWeather(it.lat, it.lon, LanguageHelper.getSystemLocale().language)
-            viewModel.getWeeklyWeather(it.lat, it.lon, LanguageHelper.getSystemLocale().language)
+            viewModel.getCurrentWeather(
+                it.lat,
+                it.lon,
+                LanguageHelper.getSystemLocale().language,
+                userTempUnitPref
+            )
+
+            viewModel.getWeeklyWeather(
+                it.lat,
+                it.lon,
+                LanguageHelper.getSystemLocale().language,
+                userTempUnitPref
+            )
         }
     }
 
@@ -113,7 +131,12 @@ fun HomeScreen(viewModel: HomeViewModel) {
                     ),
                     onClick = {
                         locationState?.let {
-                            viewModel.getCurrentWeather(it.lat, it.lon, LanguageHelper.getSystemLocale().language)
+                            viewModel.getCurrentWeather(
+                                it.lat,
+                                it.lon,
+                                LanguageHelper.getSystemLocale().language,
+                                userTempUnitPref
+                            )
                         }
                     }
                 ) {
@@ -148,8 +171,12 @@ fun HomeScreen(viewModel: HomeViewModel) {
                             ),
                             onClick = {
                                 locationState?.let {
-
-                                    viewModel.getCurrentWeather(it.lat, it.lon, LanguageHelper.getSystemLocale().language)
+                                    viewModel.getCurrentWeather(
+                                        it.lat,
+                                        it.lon,
+                                        LanguageHelper.getSystemLocale().language,
+                                        userTempUnitPref
+                                    )
                                 }
                             }
                         ) {
@@ -166,17 +193,27 @@ fun HomeScreen(viewModel: HomeViewModel) {
                     CircularProgressIndicator(color = onSecondaryColor)
                 }
                 is ResponseState.Success ->{
-                    val successWeeklyWeatherData = (weeklyWeatherState as ResponseState.Success).data as WeatherResponse
-                    Log.i(TAG, "HomeScreen-> WeeklyWeatherData: ${successWeeklyWeatherData.message} ${successWeeklyWeatherData.city}  ${successWeeklyWeatherData.count} ")
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .gradientBackground()
-                                .statusBarsPadding()
-                                .navigationBarsPadding()
-                        ) {
-                            CurrentWeatherUI(successCurrentWeatherData, successWeeklyWeatherData.weatherDTOList)
+                    val successWeeklyWeatherData =
+                        (weeklyWeatherState as ResponseState.Success).data as WeatherResponse
+
+                    Log.i(
+                        TAG,
+                        "HomeScreen-> WeeklyWeatherData: ${successWeeklyWeatherData.message} ${successWeeklyWeatherData.city}  ${successWeeklyWeatherData.count} "
+                    )
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .gradientBackground()
+                            .statusBarsPadding()
+                            .navigationBarsPadding()
+                    ) {
+                            CurrentWeatherUI(
+                                successCurrentWeatherData,
+                                successWeeklyWeatherData.weatherDTOList,
+                                userTempUnitPref,
+                                userWindUnitPref
+                            )
                         }
 
                 }
@@ -189,11 +226,13 @@ fun HomeScreen(viewModel: HomeViewModel) {
 }
 
 
-
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun CurrentWeatherUI(currentWeatherData: WeatherDTO, weeklyWeatherData: List<WeatherDTO>){
-    val context = LocalContext.current
+fun CurrentWeatherUI(
+    currentWeatherData: WeatherDTO,
+    weeklyWeatherData: List<WeatherDTO>,
+    userTempUnitPref: String?,
+    userWindUnitPref: String
+){
     val formatter = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
     val date = formatter.format(Date())
 
@@ -213,13 +252,6 @@ fun CurrentWeatherUI(currentWeatherData: WeatherDTO, weeklyWeatherData: List<Wea
             .padding(start = 18.dp, top = 10.dp, end = 18.dp)
             .fillMaxWidth()
     ) {
-
-//        GlideImage(
-//            model = "https://openweathermap.org/img/wn/${weatherDto.weather[0].icon}@2x.png",
-//            contentDescription = " ",
-//            modifier = Modifier.size(120.dp),
-//            contentScale = ContentScale.Fit,
-//        )
         Image(
             painter = painterResource(R.drawable.clouds),
             contentScale = ContentScale.Fit,
@@ -232,22 +264,46 @@ fun CurrentWeatherUI(currentWeatherData: WeatherDTO, weeklyWeatherData: List<Wea
                 feelsLikeTemp = currentWeatherData.mainWeatherData.feels_like.roundToInt(),
                 weatherStatus = currentWeatherData.weather[0].main + " / " + currentWeatherData.weather[0].description,
                 sunriseTime = it,
-                unit = "Celsius"
+                unit = userTempUnitPref
             )
         }
         Spacer(Modifier.height(8.dp))
         Row(
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            IconSquare(R.drawable.wind, stringResource(R.string.wind),currentWeatherData.wind.speed.roundToInt(), stringResource(R.string.meter_per_sec))
-            IconSquare(R.drawable.humidity, stringResource(R.string.humidity), currentWeatherData.mainWeatherData.humidity, "%")
-            IconSquare(R.drawable.pressure, stringResource(R.string.pressure), currentWeatherData.mainWeatherData.pressure, stringResource(R.string.pascal))
-            IconSquare(R.drawable.clouds, stringResource(R.string.clouds),  currentWeatherData.clouds.all, "%")
+            IconSquare(
+                R.drawable.wind,
+                stringResource(R.string.wind),
+                if (userWindUnitPref == "m/s") currentWeatherData.wind.speed.roundToInt() else metersPerSecondToMilesPerHour(
+                    currentWeatherData.wind.speed
+                ).toInt(),
+                if (userWindUnitPref == "m/s") stringResource(R.string.meter_per_sec) else stringResource(
+                    R.string.mile_per_hour
+                )
+            )
+            IconSquare(
+                R.drawable.humidity,
+                stringResource(R.string.humidity),
+                currentWeatherData.mainWeatherData.humidity,
+                "%"
+            )
+            IconSquare(
+                R.drawable.pressure,
+                stringResource(R.string.pressure),
+                currentWeatherData.mainWeatherData.pressure,
+                stringResource(R.string.pascal)
+            )
+            IconSquare(
+                R.drawable.clouds,
+                stringResource(R.string.clouds),
+                currentWeatherData.clouds.all,
+                "%"
+            )
         }
         Spacer(Modifier.height(10.dp))
-        HourlyWeather(getHourlyForecast(weeklyWeatherData), "Celsius")
+        HourlyWeather(getHourlyForecast(weeklyWeatherData), userTempUnitPref)
         Spacer(Modifier.height(10.dp))
-        WeeklyWeather(getWeeklyForecast(weeklyWeatherData), "Celsius")
+        WeeklyWeather(getWeeklyForecast(weeklyWeatherData), userTempUnitPref)
     }
 }
 
@@ -256,15 +312,15 @@ fun CurrentWeatherUI(currentWeatherData: WeatherDTO, weeklyWeatherData: List<Wea
 fun TemperatureDisplay(temperature: Int,
                        weatherStatus: String,
                        feelsLikeTemp: Int,
-                       unit: String,
+                       unit: String?,
                        sunriseTime: String = "5:50"
 ) {
     val context = LocalContext.current
+
     val unitResId = when (unit) {
-        "Celsius" -> R.string.celsius
-        "Fahrenheit" -> R.string.fahrenheit
-        "Kelvin" -> R.string.kelvin
-        else -> R.string.celsius
+        "metric" -> R.string.celsius
+        "imperial" -> R.string.fahrenheit
+        else -> R.string.kelvin
     }
 
     Row(
@@ -352,7 +408,6 @@ fun IconSquare(iconResId: Int, description: String, measurement: Int, unit: Stri
             Image(
                 painter = painterResource(id = iconResId),
                 contentDescription = description,
-                //colorFilter = ColorFilter.tint(Color.White),
                 modifier = Modifier.size(30.dp)
             )
 
@@ -361,13 +416,17 @@ fun IconSquare(iconResId: Int, description: String, measurement: Int, unit: Stri
         Text(
             text = description,
             color = Color.White,
-            style = MaterialTheme.typography.labelSmall
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontSize = 13.sp
+            )
         )
 
         Text(
             text = "${formatNumberToLocale(measurement, context)} $unit",
             color = Color.White,
-            style = MaterialTheme.typography.labelSmall
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontSize = 15.sp
+            )
         )
     }
 
@@ -375,7 +434,7 @@ fun IconSquare(iconResId: Int, description: String, measurement: Int, unit: Stri
 
 
 @Composable
-fun HourlyWeather(weatherList: List<WeatherDTO>, unit: String){
+fun HourlyWeather(weatherList: List<WeatherDTO>, unit: String?){
 
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(10.dp))
@@ -391,15 +450,14 @@ fun HourlyWeather(weatherList: List<WeatherDTO>, unit: String){
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun HourlyWeatherItem(weatherDTO: WeatherDTO, unit: String){
+fun HourlyWeatherItem(weatherDTO: WeatherDTO, unit: String?){
 
     val context = LocalContext.current
 
     val unitResId = when (unit) {
-        "Celsius" -> R.string.celsius
-        "Fahrenheit" -> R.string.fahrenheit
-        "Kelvin" -> R.string.kelvin
-        else -> R.string.celsius
+        "metric" -> R.string.celsius
+        "imperial" -> R.string.fahrenheit
+        else -> R.string.kelvin
     }
 
     Box(
@@ -451,7 +509,7 @@ fun HourlyWeatherItem(weatherDTO: WeatherDTO, unit: String){
 }
 
 @Composable
-fun WeeklyWeather(weatherList: List<WeatherDTO>, unit: String){
+fun WeeklyWeather(weatherList: List<WeatherDTO>, unit: String?){
     Log.i(TAG, "WeeklyWeather: ${weatherList.size}")
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -475,23 +533,25 @@ fun WeeklyWeather(weatherList: List<WeatherDTO>, unit: String){
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun WeeklyWeatherItem(weatherDTO: WeatherDTO, unit: String){
+fun WeeklyWeatherItem(weatherDTO: WeatherDTO, unit: String?){
 
     val context = LocalContext.current
-    val dayOfWeek = if (getDayOfWeek(weatherDTO) == "Today" && LanguageHelper.getSystemLocale().language == "ar"){
+    val dayOfWeek = if (getDayOfWeek(weatherDTO).trim() == "Today" && LanguageHelper.getSystemLocale().language == "ar"){
+        Log.i(TAG, "WeeklyWeatherItem: dayOfWeek \"اليوم\" ")
         "اليوم"
     }else {
         getDayOfWeek(weatherDTO)
     }
+    getDayOfWeek(weatherDTO)
 
     val unitResId = when (unit) {
-        "Celsius" -> R.string.celsius
-        "Fahrenheit" -> R.string.fahrenheit
-        "Kelvin" -> R.string.kelvin
-        else -> R.string.celsius
+        "metric" -> R.string.celsius
+        "imperial" -> R.string.fahrenheit
+        else -> R.string.kelvin
     }
 
-    Log.i(TAG, "dayOfWeek: ${dayOfWeek}")
+
+    Log.i(TAG, "getDayOfWeek: ${getDayOfWeek(weatherDTO)}")
     Card(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp
@@ -537,15 +597,17 @@ fun WeeklyWeatherItem(weatherDTO: WeatherDTO, unit: String){
                 ) {
                 Text(
 
-                    text = "${formatNumberToLocale(weatherDTO.mainWeatherData.temp_max.roundToInt(), context)} / ${formatNumberToLocale(weatherDTO.mainWeatherData.temp_min.roundToInt(), context)}",
+                    text = "${formatNumberToLocale(weatherDTO.mainWeatherData.temp_max.roundToInt(), context)} " +
+                            "/ ${formatNumberToLocale(weatherDTO.mainWeatherData.temp_min.roundToInt(), context)}",
                     color = MediumBlue,
                     style = MaterialTheme.typography.labelMedium
                 )
                 Text(
                     text = stringResource(unitResId),
                     color = MediumBlue,
-                    fontWeight = FontWeight.Normal,
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 10.sp,
+                    ),
                     modifier = Modifier.padding(start = 4.dp, bottom = 5.dp)
                 )
             }
