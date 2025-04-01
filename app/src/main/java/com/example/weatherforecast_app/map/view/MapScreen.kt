@@ -56,6 +56,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(viewModel: MapViewModel, onLocationSelected: (LocationInfo) -> Unit) {
+
     val selectedLocation by viewModel.selectedLocation.collectAsStateWithLifecycle()
     val showBottomSheet by viewModel.showBottomSheet.collectAsStateWithLifecycle()
     var query by remember { mutableStateOf("") }
@@ -104,7 +105,7 @@ fun MapScreen(viewModel: MapViewModel, onLocationSelected: (LocationInfo) -> Uni
         }
     }
 
-    Column(modifier = Modifier.padding(top = 20.dp)) {
+    Column(modifier = Modifier) {
         OutlinedTextField(
             value = query,
             onValueChange = {
@@ -114,7 +115,7 @@ fun MapScreen(viewModel: MapViewModel, onLocationSelected: (LocationInfo) -> Uni
             label = { Text("Search Location") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
+                .padding(10.dp).padding(top = 20.dp)
                 .background(color = Color.White)
         )
 
@@ -160,10 +161,8 @@ fun MapScreen(viewModel: MapViewModel, onLocationSelected: (LocationInfo) -> Uni
 
                 searchedLocation?.let { location ->
                     val formattedAddress = location.features.firstOrNull()?.properties?.let { it1 ->
-                        formatAddress(
-                            it1.address)
+                        formatAddress(it1.address)
                     }
-                    println(formattedAddress)
 
                     Column(
                         modifier = Modifier

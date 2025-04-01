@@ -6,10 +6,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.weatherforecast_app.utils.ResponseState
 import com.example.weatherforecast_app.data.model.Coordinate
+import com.example.weatherforecast_app.data.model.LocationResponse
+import com.example.weatherforecast_app.data.repo.location_repo.ILocationRepository
 import com.example.weatherforecast_app.data.repo.user_pref.IUserPreferenceRepository
 import com.example.weatherforecast_app.data.repo.weather_repo.IWeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -18,7 +21,8 @@ private const val TAG = "HomeViewModel"
 
 class HomeViewModel(
     private val weatherRepo: IWeatherRepository,
-    private val userPrefRepo: IUserPreferenceRepository
+    private val userPrefRepo: IUserPreferenceRepository,
+    private val locationRepo: ILocationRepository
 ): ViewModel() {
 
     private val mutableCurrentWeather: MutableStateFlow<ResponseState> = MutableStateFlow(
@@ -28,6 +32,9 @@ class HomeViewModel(
     private val mutableWeeklyWeather: MutableStateFlow<ResponseState> = MutableStateFlow(
         ResponseState.Loading)
     val weeklyWeatherData = mutableWeeklyWeather.asStateFlow()
+
+    private val _searchedLocation = MutableStateFlow<LocationResponse?>(null)
+    val searchedLocation: StateFlow<LocationResponse?> = _searchedLocation.asStateFlow()
 
     private val _locationStateFlow = MutableStateFlow<Coordinate?>(null)
     val locationStateFlow = _locationStateFlow.asStateFlow()
@@ -77,6 +84,19 @@ class HomeViewModel(
         }
     }
 
+
+    fun searchLocationByCoordinate(latitude: Double, longitude: Double){
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = locationRepo.searchLocationByCoordinate(latitude, longitude)
+            result.catch { e->
+                Log.i(TAG, "err: ${e.message}")
+            }.collect{
+                _searchedLocation.value = it
+
+            }
+        }
+    }
+
     fun getTemperatureUnitPref(): String?{
 
          val temperatureUnitPref = when(userPrefRepo.getTemperatureUnit()){
@@ -95,9 +115,11 @@ class HomeViewModel(
 
 
 class HomeFactory(private val weatherRepo: IWeatherRepository,
-                  private val userPrefRepo: IUserPreferenceRepository
+                  private val userPrefRepo: IUserPreferenceRepository,
+                  private val locationRepo: ILocationRepository
+
 ): ViewModelProvider.Factory{
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return HomeViewModel(weatherRepo, userPrefRepo) as T
+        return HomeViewModel(weatherRepo, userPrefRepo, locationRepo) as T
     }
 }

@@ -159,7 +159,6 @@ fun FavoriteDetailsScreen(
 }
 
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun CurrentWeatherUI(currentWeatherData: WeatherDTO,
                      weeklyWeatherData: List<WeatherDTO>,
@@ -173,7 +172,7 @@ fun CurrentWeatherUI(currentWeatherData: WeatherDTO,
         modifier = Modifier.padding(start = 18.dp, top = 20.dp, end = 18.dp)
     ) {
         Text(
-            text = "${city}, ${currentWeatherData.placeInfo.country}\n$date",
+            text = "${city}\n$date",
             color = Color.White,
             style = MaterialTheme.typography.titleMedium
         )

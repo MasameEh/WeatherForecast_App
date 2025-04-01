@@ -56,6 +56,7 @@ import com.example.weatherforecast_app.ui.theme.MediumBlue
 import com.example.weatherforecast_app.ui.theme.gradientBackground
 import com.example.weatherforecast_app.ui.theme.onSecondaryColor
 import com.example.weatherforecast_app.utils.LanguageHelper
+import com.example.weatherforecast_app.utils.formatAddress
 import com.example.weatherforecast_app.utils.formatNumberToLocale
 import com.example.weatherforecast_app.utils.formatUnixTimestamp
 import com.example.weatherforecast_app.utils.getDayOfWeek
@@ -76,32 +77,40 @@ fun HomeScreen(viewModel: HomeViewModel) {
     val locationState by viewModel.locationStateFlow.collectAsStateWithLifecycle()
     val currentWeatherState by viewModel.currentWeatherData.collectAsStateWithLifecycle()
     val weeklyWeatherState by viewModel.weeklyWeatherData.collectAsStateWithLifecycle()
+    val searchedLocation by viewModel.searchedLocation.collectAsStateWithLifecycle()
 
-    val userTempUnitPref = viewModel.getTemperatureUnitPref()
+    val userTempUnitPref = viewModel.getTemperatureUnitPref() ?: "Ce"
     val userWindUnitPref = viewModel.getWindUnitPref() ?: "m/s"
 
     Log.i(TAG, "userTempUnitPref: $userTempUnitPref ")
 
     val ctx = LocalContext.current
-    var city = ""
+    var formattedAddress = ""
     var country =  ""
 
     Log.i(TAG, "HomeScreen: address")
     locationState?.let { location ->
-        val address = getLocationName(ctx, location.lat, location.lon)
-        city = address?.locality
-            ?: address?.getAddressLine(0)
-                ?.substringBefore(",") // Extracts  the city
-                ?.replace(
-                    Regex(
-                        "\\d+|\\b(?:Street|St|Rd|Avenue|Ave|Blvd|P.O. Box|PO Box)\\b",
-                        RegexOption.IGNORE_CASE
-                    ), ""
-                )
-                ?.trim()
-                    ?: "Unknown City"
-        country = address?.countryName ?: "Unknown Country"
-        Log.i(TAG, "address $city: $country")
+//        val address = getLocationName(ctx, location.lat, location.lon)
+//        city = address?.locality
+//            ?: address?.getAddressLine(0)
+//                ?.substringBefore(",") // Extracts  the city
+//                ?.replace(
+//                    Regex(
+//                        "\\d+|\\b(?:Street|St|Rd|Avenue|Ave|Blvd|P.O. Box|PO Box)\\b",
+//                        RegexOption.IGNORE_CASE
+//                    ), ""
+//                )
+//                ?.trim()
+//                    ?: "Unknown City"
+//        country = address?.countryName ?: "Unknown Country"
+//        Log.i(TAG, "address $city: $country")
+
+        viewModel.searchLocationByCoordinate(location.lat, location.lon)
+        searchedLocation?.let { response ->
+             formattedAddress = response.features.firstOrNull()?.properties?.let { it1 ->
+                formatAddress(it1.address)
+            } ?: "UnKnown Place"
+        }
     }
 
     LaunchedEffect(locationState) {
@@ -231,14 +240,13 @@ fun HomeScreen(viewModel: HomeViewModel) {
                             .statusBarsPadding()
                             .navigationBarsPadding()
                     ) {
-                        Log.i(TAG, "address $city: $country")
+                        Log.i(TAG, "address $formattedAddress: $country")
                             CurrentWeatherUI(
                                 successCurrentWeatherData,
                                 successWeeklyWeatherData.weatherDTOList,
                                 userTempUnitPref,
                                 userWindUnitPref,
-                                city,
-                                country
+                                formattedAddress,
                             )
                         }
 
@@ -258,8 +266,8 @@ fun CurrentWeatherUI(
     weeklyWeatherData: List<WeatherDTO>,
     userTempUnitPref: String?,
     userWindUnitPref: String,
-    city: String,
-    country: String,
+    place: String,
+
 ){
     val formatter = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
     val date = formatter.format(Date())
@@ -270,7 +278,7 @@ fun CurrentWeatherUI(
         modifier = Modifier.padding(start = 18.dp, top = 20.dp, end = 18.dp)
     ) {
         Text(
-            text = "${city}, ${country}\n$date",
+            text = "${place}\n$date",
             color = Color.White,
             style = MaterialTheme.typography.titleMedium
         )

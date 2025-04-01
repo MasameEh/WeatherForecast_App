@@ -157,6 +157,13 @@ class MainActivity : ComponentActivity() {
                 ),
                 UserPreferenceRepositoryImp.getInstance(
                     CacheHelper.getInstance(this)
+                ),
+                LocationRepositoryImp.getInstance(LocationServices.getFusedLocationProviderClient(
+                    this
+                ), LocationLocalDataSourceImp(
+                    AppDatabase.getInstance(this).getLocationsDao()
+                ),
+                    LocationRemoteDataSourceImp()
                 )
             )
         ).get(HomeViewModel::class.java)
