@@ -55,11 +55,12 @@ import com.google.maps.android.compose.rememberCameraPositionState
 @SuppressLint("MissingPermission")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapScreen(viewModel: MapViewModel) {
+fun MapScreen(viewModel: MapViewModel, onLocationSelected: (LocationInfo) -> Unit) {
     val selectedLocation by viewModel.selectedLocation.collectAsState()
     val showBottomSheet by viewModel.showBottomSheet.collectAsState()
     val bottomSheetState = rememberModalBottomSheetState()
     val context = LocalContext.current
+
     LaunchedEffect(Unit) {
         viewModel.message.collect{
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -167,10 +168,11 @@ fun MapScreen(viewModel: MapViewModel) {
                                 city = city,
                                 country = country
                             )
-                            viewModel.insertLocationIntoFav(locationClicked)
+                            onLocationSelected(locationClicked)
+                            //viewModel.insertLocationIntoFav(locationClicked)
                             viewModel.dismissBottomSheet()
                         }) {
-                            Text("Add to Favorite",
+                            Text("Save",
                                 style = MaterialTheme.typography.titleSmall
                             )
                         }

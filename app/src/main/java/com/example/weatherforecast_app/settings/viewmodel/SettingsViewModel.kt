@@ -3,12 +3,20 @@ package com.example.weatherforecast_app.settings.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.example.weatherforecast_app.data.repo.user_pref.IUserPreferenceRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 
 
 class SettingsViewModel(
     private val repo: IUserPreferenceRepository
 ) : ViewModel() {
+
+    private val mutableMsg: MutableSharedFlow<String> = MutableSharedFlow()
+    val message = mutableMsg.asSharedFlow()
 
 
     fun getLanguagePref(): String? {
@@ -33,23 +41,32 @@ class SettingsViewModel(
 
 
     fun updateTemperatureUnit(unit: String) {
-        repo.updateTemperatureUnit(unit)
+        viewModelScope.launch(Dispatchers.IO) {
+            mutableMsg.emit("Temperature unit changed to $unit")
+            repo.updateTemperatureUnit(unit)
+        }
     }
 
     fun updateWindSpeedUnit(unit: String){
-        repo.updateWindSpeedUnit(unit)
+        viewModelScope.launch(Dispatchers.IO) {
+            mutableMsg.emit("Wind unit changed to $unit")
+            repo.updateWindSpeedUnit(unit)
+        }
     }
 
     fun updateLanguage(language: String){
-        repo.updateLanguage(language)
+        viewModelScope.launch(Dispatchers.IO) {
+            mutableMsg.emit("Language changed to $language")
+            repo.updateLanguage(language)
+        }
     }
 
     fun updateUserNotificationStatus(status: Boolean){
         repo.updateUserNotificationStatus(status)
     }
 
-    fun updateUserLocationPref(): String?{
-        return repo.getUserLocationPref()
+    fun updateUserLocationPref(locationPref: String){
+        repo.updateUserLocationPref(locationPref)
     }
 
 }

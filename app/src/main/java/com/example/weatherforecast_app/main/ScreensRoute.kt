@@ -1,7 +1,5 @@
 package com.example.weatherforecast_app.main
 
-
-import com.example.weatherforecast_app.data.model.Coordinate
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -20,7 +18,7 @@ sealed class ScreensRoute {
     object Settings: ScreensRoute()
 
     @Serializable
-    object Map : ScreensRoute()
+    data class Map(val source: String) : ScreensRoute()
 
     @Serializable
     data class FavoriteDetails(val latitude: Double, val longitude: Double, val city: String):  ScreensRoute()

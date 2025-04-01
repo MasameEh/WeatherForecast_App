@@ -65,6 +65,7 @@ import com.example.weatherforecast_app.ui.theme.WeatherForecast_AppTheme
 import com.example.weatherforecast_app.components.BottomNavigationBar
 import com.example.weatherforecast_app.data.local.Alert.AlertLocalDataSourceImp
 import com.example.weatherforecast_app.data.local.preferences.CacheHelper
+import com.example.weatherforecast_app.data.model.LocationInfo
 import com.example.weatherforecast_app.data.repo.alert_repo.AlertRepositoryImp
 import com.example.weatherforecast_app.data.repo.user_pref.UserPreferenceRepositoryImp
 import com.example.weatherforecast_app.favorite_weather_details.view.FavoriteDetailsScreen
@@ -84,6 +85,7 @@ import com.google.android.gms.location.LocationServices
 
 class MainActivity : ComponentActivity() {
     lateinit var navHostController: NavHostController
+
     private val TAG = "MainActivity"
 
     private lateinit var homeViewModel: HomeViewModel
@@ -92,15 +94,12 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var userLangPref: String
 
-
-
-
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
         enableEdgeToEdge()
-
+        Log.i(TAG, "onCreate: ")
         // Status Bar Style
         window.setStatusBarColor(ContextCompat.getColor(this, R.color.dark_blue));
         WindowCompat.getInsetsController(window, window.decorView).apply {
@@ -134,7 +133,6 @@ class MainActivity : ComponentActivity() {
             LanguageHelper.setAppLocale(this, userLangPref)
         }
 
-
         setContent {
             WeatherForecast_AppTheme(dynamicColor = false) {
                 navHostController = rememberNavController()
@@ -148,7 +146,9 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         Log.i(TAG, "onStart: ")
-        homeViewModel = ViewModelProvider(this,
+
+        homeViewModel = ViewModelProvider(
+            this,
             HomeFactory(
                 WeatherRepositoryImp.getInstance(
                     WeatherRemoteDataSourceImp()
@@ -159,11 +159,10 @@ class MainActivity : ComponentActivity() {
             )
         ).get(HomeViewModel::class.java)
 
-        if(checkPermissions()){
-            if (isLocationEnabled(this)){
+        if (checkPermissions()) {
+            if (isLocationEnabled(this)) {
                 Log.i(TAG, "onStart: ")
-                locationViewModel.getFreshLocation {
-                    location ->
+                locationViewModel.getFreshLocation { location ->
                     location?.let {
                         homeViewModel.updateLocation(
                             latitude = it.latitude,
@@ -172,12 +171,12 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-            }else{
+            } else {
                 Log.i(TAG, "onStart: enable location services ")
                 Toast.makeText(this, "Please enable location services", Toast.LENGTH_SHORT).show()
                 showEnableLocationDialog()
             }
-        }else{
+        } else {
             Log.i(TAG, "onStart: requestPermissions ")
             ActivityCompat.requestPermissions(
                 this,
@@ -188,6 +187,7 @@ class MainActivity : ComponentActivity() {
                 LOCATION_REQUEST_CODE
             )
         }
+
     }
 
     override fun onRequestPermissionsResult(
@@ -226,28 +226,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
-    private fun showEnableLocationDialog() {
-        AlertDialog.Builder(this)
-            .setTitle("Location Required")
-            .setMessage("Please enable location services to get weather updates.")
-            .setPositiveButton("Enable") { _, _ -> enableLocationServices() }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun showSettingsDialog() {
-        AlertDialog.Builder(this)
-            .setTitle("Permissions Required")
-            .setMessage("You have denied location permissions. Please enable them in app settings.")
-            .setPositiveButton("Settings") { _, _ ->
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                intent.data = Uri.fromParts("package", packageName, null)
-                startActivity(intent)
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
 
 
     @Composable
@@ -293,30 +271,53 @@ class MainActivity : ComponentActivity() {
                         )
                     )
                 )[FavoriteViewModel::class.java],
-                    { navHostController.navigate(ScreensRoute.Map) },
+                    { navHostController.navigate(ScreensRoute.Map("Favorites")) },
                     { latitude, longitude, city -> navHostController.navigate(ScreensRoute.FavoriteDetails(latitude,longitude, city )) }
                 )
             }
 
             composable<ScreensRoute.Settings>{
-                SettingsScreen(settingsViewModel)
+                SettingsScreen(
+                    settingsViewModel,
+                    { navHostController.navigate(ScreensRoute.Map("Settings")) },
+                )
             }
 
-            composable<ScreensRoute.Map>{
+            composable<ScreensRoute.Map>{ backStackEntry->
 
-                MapScreen(
-                    ViewModelProvider(
-                        this@MainActivity, MapViewModelFactory(
-                            LocationRepositoryImp.getInstance(
-                                LocationServices.getFusedLocationProviderClient(
-                                    this@MainActivity
-                                ), LocationLocalDataSourceImp(
-                                    AppDatabase.getInstance(this@MainActivity)
-                                        .getLocationsDao()
-                                )
+                val entry = backStackEntry.toRoute<ScreensRoute.Map>()
+                val source = entry.source
+
+                val favViewModel =  ViewModelProvider(
+                    this@MainActivity, MapViewModelFactory(
+                        LocationRepositoryImp.getInstance(
+                            LocationServices.getFusedLocationProviderClient(
+                                this@MainActivity
+                            ), LocationLocalDataSourceImp(
+                                AppDatabase.getInstance(this@MainActivity)
+                                    .getLocationsDao()
                             )
                         )
-                    )[MapViewModel::class.java]
+                    )
+                )[MapViewModel::class.java]
+
+                MapScreen(
+                    favViewModel,
+                    onLocationSelected = { selectedLocation ->
+
+                        if(source == "Settings"){
+                                navHostController.popBackStack()
+                                homeViewModel.updateLocation(selectedLocation.latitude, selectedLocation.longitude)
+                        }else if(source == "Favorites"){
+                            val locationClicked = LocationInfo(
+                                longitude = selectedLocation.longitude,
+                                latitude = selectedLocation.latitude,
+                                city = selectedLocation.city,
+                                country = selectedLocation.country
+                            )
+                            favViewModel.insertLocationIntoFav(locationClicked)
+                        }
+                    }
                 )
             }
 
@@ -348,7 +349,7 @@ class MainActivity : ComponentActivity() {
             navHostController.addOnDestinationChangedListener { _, destination, _ ->
                 Log.i("route", "MainScreen: ${destination.route} ${destination.id} ${destination.label}")
                 when(destination.route){
-                    "com.example.weatherforecast_app.main.ScreensRoute.Map" -> showBottomAppBar.value = false
+                    "com.example.weatherforecast_app.main.ScreensRoute.Map/{source}" -> showBottomAppBar.value = false
                     else -> showBottomAppBar.value = true
                 }
             }
@@ -390,7 +391,36 @@ class MainActivity : ComponentActivity() {
     }
 
 
+    private fun showEnableLocationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Location Required")
+            .setMessage("Please enable location services to get weather updates.")
+            .setPositiveButton("Enable") { _, _ -> enableLocationServices() }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
 
+//    private fun showOpenMapDialog() {
+//        AlertDialog.Builder(this)
+//            .setTitle("Location Required")
+//            .setMessage("Please select your location on map to get weather updates.")
+//            .setPositiveButton("Open Map") { _, _ -> navHostController.navigate(ScreensRoute.Map) }
+//            .setNegativeButton("Cancel", null)
+//            .show()
+//    }
+
+    private fun showSettingsDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Permissions Required")
+            .setMessage("You have denied location permissions. Please enable them in app settings.")
+            .setPositiveButton("Settings") { _, _ ->
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                intent.data = Uri.fromParts("package", packageName, null)
+                startActivity(intent)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
 }
 
 

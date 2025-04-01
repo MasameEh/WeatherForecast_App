@@ -57,25 +57,27 @@ import com.example.weatherforecast_app.utils.LanguageHelper
 import com.example.weatherforecast_app.utils.NotificationHelper
 
 
+
 private const val TAG = "SettingsScreen"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel) {
+fun SettingsScreen(settingsViewModel: SettingsViewModel,
+                   navigateToMap: () -> Unit,
+                   ) {
 
     var selectedLanguage by remember { mutableStateOf("") }
     var selectedTempUnit by remember { mutableStateOf("") }
     var selectedWindUnit by remember { mutableStateOf("") }
     var selectedNotificationStatus by remember { mutableStateOf(true) }
-    var selectedLocation by remember { mutableStateOf("") }
+    var selectedLocation by remember { mutableStateOf("GPS") }
 
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        selectedLanguage = viewModel.getLanguagePref() ?: "System Default"
-        selectedTempUnit = viewModel.getTemperatureUnitPref() ?: "Celsius"
-        selectedWindUnit = viewModel.getWindUnitPref() ?: "m/s"
-        selectedNotificationStatus = viewModel.getUserNotificationStatus()
-        selectedLocation = viewModel.getUserLocationPref() ?: "GPS"
+        selectedLanguage = settingsViewModel.getLanguagePref() ?: "System Default"
+        selectedTempUnit = settingsViewModel.getTemperatureUnitPref() ?: "Celsius"
+        selectedWindUnit = settingsViewModel.getWindUnitPref() ?: "m/s"
+        selectedNotificationStatus = settingsViewModel.getUserNotificationStatus()
     }
     Scaffold(
         modifier = Modifier
@@ -116,7 +118,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                     onOptionSelected = {
                         Log.i(TAG, "SettingsScreen: $it")
                         selectedLanguage = it
-                        viewModel.updateLanguage(it)
+                        settingsViewModel.updateLanguage(it)
                         LanguageHelper.setAppLocale(context, it)
                     },
                     selectedOption = selectedLanguage,
@@ -127,7 +129,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                     name = stringResource(R.string.temp_unit),
                     listOf("Celsius", "Fahrenheit", "kelvin"), {
                         selectedTempUnit = it
-                        viewModel.updateTemperatureUnit(it)
+                        settingsViewModel.updateTemperatureUnit(it)
                     },
                     selectedTempUnit)
             }
@@ -139,7 +141,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                     listOf("m/s", "m/h"),
                     onOptionSelected = {
                         selectedWindUnit = it
-                        viewModel.updateWindSpeedUnit(it)
+                        settingsViewModel.updateWindSpeedUnit(it)
                     },
                     selectedOption = selectedWindUnit,
                 )
@@ -153,7 +155,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                             NotificationHelper.enableNotifications(context)
                         }else NotificationHelper.disableAllNotifications(context)
 
-                        viewModel.updateUserNotificationStatus(selectedNotificationStatus)
+                        settingsViewModel.updateUserNotificationStatus(selectedNotificationStatus)
                     },
                     if(selectedNotificationStatus) "Enable" else "Disable"
                 )
@@ -162,10 +164,11 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                 Modifier,
                 name = stringResource(R.string.location),
                 listOf("GPS", "MAP"), {
-                    //selectedTempUnit = it
-                    //viewModel.updateTemperatureUnit(it)
+                    selectedLocation = it
+                    if(it == "MAP") navigateToMap()
+
                 },
-                selectedTempUnit
+                selectedLocation
             )
         }
     }

@@ -8,6 +8,7 @@ import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.Objects
 import java.util.TimeZone
 
 
@@ -58,7 +59,7 @@ fun getLocationName(context: Context, lat: Double, lng: Double): Address? {
 }
 
 
-fun formatNumberToLocale(value: Int, context: Context): String {
+fun formatNumberToLocale(value: Any, context: Context): String {
     val locale =
         context.resources.configuration.locales[0]
     return NumberFormat.getInstance(locale).format(value)
@@ -67,3 +68,5 @@ fun formatNumberToLocale(value: Int, context: Context): String {
 fun metersPerSecondToMilesPerHour(speedInMetersPerSecond: Double): Double {
     return speedInMetersPerSecond * 2.23694
 }
+
+
