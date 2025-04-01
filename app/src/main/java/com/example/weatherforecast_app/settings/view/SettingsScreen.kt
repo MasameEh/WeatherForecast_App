@@ -54,6 +54,7 @@ import com.example.weatherforecast_app.ui.theme.LightBlue
 
 import com.example.weatherforecast_app.ui.theme.gradientBackground
 import com.example.weatherforecast_app.utils.LanguageHelper
+import com.example.weatherforecast_app.utils.NotificationHelper
 
 
 private const val TAG = "SettingsScreen"
@@ -64,6 +65,8 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
     var selectedLanguage by remember { mutableStateOf("") }
     var selectedTempUnit by remember { mutableStateOf("") }
     var selectedWindUnit by remember { mutableStateOf("") }
+    var selectedNotificationStatus by remember { mutableStateOf(true) }
+    var selectedLocation by remember { mutableStateOf("") }
 
     val context = LocalContext.current
 
@@ -71,7 +74,8 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
         selectedLanguage = viewModel.getLanguagePref() ?: "System Default"
         selectedTempUnit = viewModel.getTemperatureUnitPref() ?: "Celsius"
         selectedWindUnit = viewModel.getWindUnitPref() ?: "m/s"
-
+        selectedNotificationStatus = viewModel.getUserNotificationStatus()
+        selectedLocation = viewModel.getUserLocationPref() ?: "GPS"
     }
     Scaffold(
         modifier = Modifier
@@ -144,10 +148,15 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                     Modifier.weight(1f),
                     name = stringResource(R.string.notification),
                     listOf("Enable", "Disable"), {
-                        //selectedTempUnit = it
-                        //viewModel.updateTemperatureUnit(it)
+                        selectedNotificationStatus = it == "Enable"
+                        if(it == "Enable"){
+                            NotificationHelper.enableNotifications(context)
+                        }else NotificationHelper.disableAllNotifications(context)
+
+                        viewModel.updateUserNotificationStatus(selectedNotificationStatus)
                     },
-                    selectedTempUnit)
+                    if(selectedNotificationStatus) "Enable" else "Disable"
+                )
             }
             SettingsItem(
                 Modifier,

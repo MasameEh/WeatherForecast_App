@@ -2,17 +2,11 @@ package com.example.weatherforecast_app.weather_alerts.view
 
 import android.Manifest
 import android.app.Activity
-import android.app.TimePickerDialog
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,14 +16,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -37,7 +29,6 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerColors
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ElevatedCard
@@ -62,7 +53,6 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -74,6 +64,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherforecast_app.data.model.AlertInfo
+import com.example.weatherforecast_app.data.repo.user_pref.UserPreferenceRepositoryImp
 import com.example.weatherforecast_app.ui.theme.MediumBlue
 import com.example.weatherforecast_app.ui.theme.gradientBackground
 import com.example.weatherforecast_app.ui.theme.onSecondaryColor
@@ -239,8 +230,12 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
                                 )
 
                                 viewModel.insertAlertToAlerts(alert)
-                                viewModel.scheduleWeatherAlert(context, timestamp, alert.id)
 
+                                if(!viewModel.getUserNotificationStatus()){
+                                    Toast.makeText(context, "Enable Notifications otherwise Alerts will not appear ", Toast.LENGTH_LONG).show()
+                                }else{
+                                    viewModel.scheduleWeatherAlert(context, timestamp, alert.id)
+                                }
                                 Log.i(
                                     "WeatherAlerts",
                                     "calendar: ${formatDateTimestamp(timestamp)}"
@@ -282,6 +277,12 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
 
                             viewModel.insertAlertToAlerts(alert)
                             viewModel.scheduleWeatherAlert(context, timestamp, alert.id)
+
+                            if(!viewModel.getUserNotificationStatus()){
+                                Toast.makeText(context, "Enable Notifications otherwise Alerts will not appear ", Toast.LENGTH_LONG).show()
+                            }else{
+                                viewModel.scheduleWeatherAlert(context, timestamp, alert.id)
+                            }
 
                             Log.i("WeatherAlerts", "calendar: ${formatDateTimestamp(timestamp)}")
                             viewModel.toggleTimePicker(false)

@@ -29,7 +29,7 @@ class CacheHelper private constructor(context: Context) {
 
     // Get boolean value
     fun getBoolean(key: String?): Boolean {
-        return sharedPreferences.getBoolean(key, false)
+        return sharedPreferences.getBoolean(key, true)
     }
 
     // Remove a specific key

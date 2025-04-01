@@ -268,9 +268,14 @@ class MainActivity : ComponentActivity() {
                         AlertsViewModelFactory(
                             AlertRepositoryImp.getInstance(
                                 AlertLocalDataSourceImp(
-                                    dao =  AppDatabase.getInstance(this@MainActivity).getLocationsDao()
+                                    dao = AppDatabase.getInstance(this@MainActivity)
+                                        .getLocationsDao()
                                 )
-                            ))
+                            ),
+                            UserPreferenceRepositoryImp.getInstance(
+                                CacheHelper.getInstance(this@MainActivity)
+                            )
+                        )
                     )[AlertsViewModel::class.java]
                 )
             }

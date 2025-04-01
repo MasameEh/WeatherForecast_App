@@ -11,29 +11,47 @@ class SettingsViewModel(
 ) : ViewModel() {
 
 
-    fun getLanguagePref(): String?{
+    fun getLanguagePref(): String? {
         return repo.getUserLanguage()
     }
-    fun updateLanguage(language: String){
-        repo.updateLanguage(language)
+
+    fun getUserNotificationStatus(): Boolean {
+        return repo.getUserNotificationStatus()
     }
 
-
-    fun getTemperatureUnitPref(): String?{
+    fun getTemperatureUnitPref(): String? {
         return repo.getTemperatureUnit()
     }
 
-    fun getWindUnitPref(): String?{
+    fun getWindUnitPref(): String? {
         return repo.getWindSpeedUnit()
     }
 
-    fun updateTemperatureUnit(unit: String){
+    fun getUserLocationPref(): String? {
+        return repo.getUserLocationPref()
+    }
+
+
+    fun updateTemperatureUnit(unit: String) {
         repo.updateTemperatureUnit(unit)
     }
 
     fun updateWindSpeedUnit(unit: String){
         repo.updateWindSpeedUnit(unit)
     }
+
+    fun updateLanguage(language: String){
+        repo.updateLanguage(language)
+    }
+
+    fun updateUserNotificationStatus(status: Boolean){
+        repo.updateUserNotificationStatus(status)
+    }
+
+    fun updateUserLocationPref(): String?{
+        return repo.getUserLocationPref()
+    }
+
 }
 
 class SettingsViewModelFactory(private val repo: IUserPreferenceRepository): ViewModelProvider.Factory{

@@ -11,6 +11,7 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.weatherforecast_app.data.model.AlertInfo
 import com.example.weatherforecast_app.data.repo.alert_repo.IAlertRepository
+import com.example.weatherforecast_app.data.repo.user_pref.IUserPreferenceRepository
 import com.example.weatherforecast_app.utils.ResponseState
 import com.example.weatherforecast_app.weather_alerts.WeatherAlertsWorker
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,8 @@ import java.util.concurrent.TimeUnit
 
 private const val TAG = "AlertsViewModel"
 class AlertsViewModel(
-    private val repo: IAlertRepository
+    private val alertRepo: IAlertRepository,
+    private val userPrefRepo: IUserPreferenceRepository
 ) : ViewModel(){
     private val _showDatePicker = MutableStateFlow(false)
     val showDatePicker = _showDatePicker.asStateFlow()
@@ -59,6 +61,7 @@ class AlertsViewModel(
 //        val data = workDataOf(
 //            "NOTIFICATION_CONTENT" to
 //        )
+
         val workRequest = OneTimeWorkRequestBuilder<WeatherAlertsWorker>()
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
             .addTag(alertId)
@@ -69,7 +72,7 @@ class AlertsViewModel(
 
     fun getAllAlerts(){
         viewModelScope.launch(Dispatchers.IO) {
-            val result = repo.getAllAlerts()
+            val result = alertRepo.getAllAlerts()
             result.catch { ex ->
                 mutableMsg.emit("Error!! Couldn't be retrieved, try again")
                 _mutableAlertsList.value = ResponseState.Failure(ex)
@@ -83,7 +86,7 @@ class AlertsViewModel(
 
         viewModelScope.launch(Dispatchers.IO) {
             try{
-                val result  = repo.insertAlert(alert)
+                val result  = alertRepo.insertAlert(alert)
                 if(result > 0){
                     mutableMsg.emit("Added successfully")
                 }else{
@@ -103,7 +106,7 @@ class AlertsViewModel(
 
         viewModelScope.launch(Dispatchers.IO) {
             try{
-                val result  = repo.deleteAlert(alert)
+                val result  = alertRepo.deleteAlert(alert)
                 if(result > 0){
                     deleteAlert(context, alert.id)
                     mutableMsg.emit("Deleted successfully")
@@ -120,15 +123,21 @@ class AlertsViewModel(
 
     }
 
+
+    fun getUserNotificationStatus(): Boolean {
+        return userPrefRepo.getUserNotificationStatus()
+    }
+
     private fun deleteAlert(context: Context, alertId: String) {
         WorkManager.getInstance(context).cancelAllWorkByTag(alertId) // Cancel work by tag
     }
 
 }
 
-class AlertsViewModelFactory(private val repo: IAlertRepository) : ViewModelProvider.Factory{
+class AlertsViewModelFactory(private val repo: IAlertRepository,
+                             private val userPrefRepo: IUserPreferenceRepository) : ViewModelProvider.Factory{
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return AlertsViewModel(repo) as T
+        return AlertsViewModel(repo, userPrefRepo) as T
     }
 }

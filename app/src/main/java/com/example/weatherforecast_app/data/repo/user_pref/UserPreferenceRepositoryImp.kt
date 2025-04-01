@@ -1,9 +1,7 @@
 package com.example.weatherforecast_app.data.repo.user_pref
 
-import com.example.weatherforecast_app.data.local.Alert.IAlertLocalDataSource
 import com.example.weatherforecast_app.data.local.preferences.CacheHelper
-import com.example.weatherforecast_app.data.repo.alert_repo.AlertRepositoryImp
-import kotlinx.coroutines.flow.Flow
+
 
 class UserPreferenceRepositoryImp private constructor(
     private val localPref: CacheHelper
@@ -35,6 +33,14 @@ class UserPreferenceRepositoryImp private constructor(
         return localPref.getString("wind")
     }
 
+    override fun getUserNotificationStatus(): Boolean {
+        return localPref.getBoolean("notification")
+    }
+
+    override fun getUserLocationPref(): String? {
+        return localPref.getString("location")
+    }
+
     override fun updateLanguage(language: String) {
         localPref.saveString("language", language)
     }
@@ -45,6 +51,14 @@ class UserPreferenceRepositoryImp private constructor(
 
     override fun updateWindSpeedUnit(unit: String) {
         localPref.saveString("wind", unit)
+    }
+
+    override fun updateUserNotificationStatus(status: Boolean) {
+        localPref.saveBoolean("notification", status)
+    }
+
+    override fun updateUserLocationPref(locationPref: String) {
+        localPref.saveString("location", locationPref)
     }
 
 }
