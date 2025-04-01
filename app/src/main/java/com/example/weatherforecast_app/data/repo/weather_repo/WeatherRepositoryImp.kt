@@ -2,7 +2,7 @@ package com.example.weatherforecast_app.data.repo.weather_repo
 
 import com.example.weatherforecast_app.data.model.WeatherDTO
 import com.example.weatherforecast_app.data.model.WeatherResponse
-import com.example.weatherforecast_app.data.remote.IWeatherRemoteDataSource
+import com.example.weatherforecast_app.data.remote.weather.IWeatherRemoteDataSource
 import kotlinx.coroutines.flow.Flow
 
 class WeatherRepositoryImp private constructor(

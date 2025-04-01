@@ -549,9 +549,10 @@ fun WeeklyWeather(weatherList: List<WeatherDTO>, unit: String?){
         item {
             Text(
                 modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
-            text = stringResource(R.string.forecast_for_upcoming),
-            color = Color.White,
-            style = MaterialTheme.typography.titleMedium,)
+                text = stringResource(R.string.forecast_for_upcoming),
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium,
+            )
         }
         items(weatherList.size){
             WeeklyWeatherItem(weatherList[it], unit)

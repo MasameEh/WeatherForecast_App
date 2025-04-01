@@ -48,7 +48,7 @@ import com.example.weatherforecast_app.R
 import com.example.weatherforecast_app.data.local.location.LocationLocalDataSourceImp
 import com.example.weatherforecast_app.data.local.AppDatabase
 
-import com.example.weatherforecast_app.data.remote.WeatherRemoteDataSourceImp
+import com.example.weatherforecast_app.data.remote.weather.WeatherRemoteDataSourceImp
 import com.example.weatherforecast_app.data.repo.location_repo.LocationRepositoryImp
 import com.example.weatherforecast_app.data.repo.weather_repo.WeatherRepositoryImp
 import com.example.weatherforecast_app.favorites.view.FavoritesScreen
@@ -66,6 +66,7 @@ import com.example.weatherforecast_app.components.BottomNavigationBar
 import com.example.weatherforecast_app.data.local.Alert.AlertLocalDataSourceImp
 import com.example.weatherforecast_app.data.local.preferences.CacheHelper
 import com.example.weatherforecast_app.data.model.LocationInfo
+import com.example.weatherforecast_app.data.remote.location.LocationRemoteDataSourceImp
 import com.example.weatherforecast_app.data.repo.alert_repo.AlertRepositoryImp
 import com.example.weatherforecast_app.data.repo.user_pref.UserPreferenceRepositoryImp
 import com.example.weatherforecast_app.favorite_weather_details.view.FavoriteDetailsScreen
@@ -122,7 +123,8 @@ class MainActivity : ComponentActivity() {
                     this
                 ), LocationLocalDataSourceImp(
                     AppDatabase.getInstance(this).getLocationsDao()
-                )
+                ),
+                    LocationRemoteDataSourceImp()
                 )
             )
         )[LocationViewModel::class.java]
@@ -267,7 +269,8 @@ class MainActivity : ComponentActivity() {
                                 this@MainActivity
                             ), LocationLocalDataSourceImp(
                                 AppDatabase.getInstance(this@MainActivity).getLocationsDao()
-                            )
+                            ),
+                            LocationRemoteDataSourceImp()
                         )
                     )
                 )[FavoriteViewModel::class.java],
@@ -296,7 +299,8 @@ class MainActivity : ComponentActivity() {
                             ), LocationLocalDataSourceImp(
                                 AppDatabase.getInstance(this@MainActivity)
                                     .getLocationsDao()
-                            )
+                            ),
+                            LocationRemoteDataSourceImp()
                         )
                     )
                 )[MapViewModel::class.java]

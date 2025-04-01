@@ -1,12 +1,12 @@
-package com.example.weatherforecast_app.data.remote
+package com.example.weatherforecast_app.data.remote.weather
 
-import android.util.Log
 import com.example.weatherforecast_app.data.model.WeatherDTO
 import com.example.weatherforecast_app.data.model.WeatherResponse
+import com.example.weatherforecast_app.data.remote.RetrofitHelper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-private const val TAG = "WeatherRemoteDataSource"
+
 class WeatherRemoteDataSourceImp : IWeatherRemoteDataSource {
 
     override fun getWeatherForFiveDays(
@@ -15,8 +15,7 @@ class WeatherRemoteDataSourceImp : IWeatherRemoteDataSource {
         language: String,
         tempUnit: String?,
         ): Flow<WeatherResponse> {
-        Log.i(TAG, "getWeatherForFiveDays: $language")
-        Log.i(TAG, "getWeatherForFiveDays: $tempUnit")
+
         return flow{
             val result = RetrofitHelper.weatherService.getWeatherForFiveDays(
                 latitude = latitude,

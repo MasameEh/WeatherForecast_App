@@ -3,6 +3,7 @@ package com.example.weatherforecast_app.utils
 import android.content.Context
 import android.location.Address
 import android.location.Geocoder
+import com.example.weatherforecast_app.data.model.AddressInfo
 import com.example.weatherforecast_app.data.model.WeatherDTO
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -70,3 +71,12 @@ fun metersPerSecondToMilesPerHour(speedInMetersPerSecond: Double): Double {
 }
 
 
+fun formatAddress(address: AddressInfo): String {
+
+    val city = address.city ?: address.town ?: address.village ?: address.neighbourhood ?: address.county
+    val state = address.state
+    val country = address.country
+
+    return listOfNotNull(address.road, city, state, country)
+        .joinToString(", ")
+}

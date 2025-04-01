@@ -15,3 +15,14 @@ data class WeatherResponse(
     val message: Int
 )
 
+data class City(
+    @SerializedName("coord")
+    val coordinate: Coordinate,
+    val country: String,
+    val id: Int,
+    val name: String,
+    val population: Int,
+    val sunrise: Int,
+    val sunset: Int,
+    val timezone: Int
+)
