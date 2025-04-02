@@ -50,7 +50,7 @@ class MainViewModel(private val repo: ILocationRepository) : ViewModel(){
         val request = NetworkRequest.Builder().build()
         connectivityManager.registerNetworkCallback(request, networkCallback)
     }
-    fun getFreshLocation(onLocationReceived: (Location?) -> Unit){
+     fun getFreshLocation(onLocationReceived: (Location?) -> Unit){
         repo.getFreshLocation(onLocationReceived)
     }
 }

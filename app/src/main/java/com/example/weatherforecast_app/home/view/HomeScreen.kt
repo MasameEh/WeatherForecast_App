@@ -576,14 +576,6 @@ fun WeeklyWeatherItem(weatherDTO: WeatherDTO, unit: String?){
                 modifier = Modifier.weight(1.3f)
 
             )
-//            GlideImage(
-//                model = "https://openweathermap.org/img/wn/${weatherDTO.weather[0].icon}@2x.png",
-//                contentDescription = " ",
-//                modifier = Modifier
-//                    .size(35.dp)
-//                    .weight(1.7f),
-//                contentScale = ContentScale.Fit,
-//            )
             Image(
                 painter = painterResource(getWeatherIcon(weatherDTO.weather[0].icon)),
                 contentScale = ContentScale.Fit,

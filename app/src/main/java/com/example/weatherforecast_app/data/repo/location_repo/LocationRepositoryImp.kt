@@ -23,7 +23,7 @@ class LocationRepositoryImp private constructor(
 
 
     @SuppressLint("MissingPermission")
-    override fun getFreshLocation(onLocationReceived: (Location?) -> Unit) {
+    override fun getFreshLocation( onLocationReceived: (Location?) -> Unit) {
         Log.i("getFreshLocation", "getFreshLocation: ")
 
         val locationRequest = LocationRequest.Builder(10000)

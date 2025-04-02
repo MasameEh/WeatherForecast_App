@@ -58,9 +58,6 @@ class AlertsViewModel(
 
     fun scheduleWeatherAlert(context: Context, timestamp: Long, alertId: String) {
         val delay = timestamp - System.currentTimeMillis()
-//        val data = workDataOf(
-//            "NOTIFICATION_CONTENT" to
-//        )
 
         val workRequest = OneTimeWorkRequestBuilder<WeatherAlertsWorker>()
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
