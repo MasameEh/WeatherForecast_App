@@ -19,25 +19,36 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -90,7 +101,7 @@ class MainActivity : ComponentActivity() {
     private val TAG = "MainActivity"
 
     private lateinit var homeViewModel: HomeViewModel
-    private lateinit var locationViewModel: LocationViewModel
+    private lateinit var mainViewModel: MainViewModel
     private lateinit var settingsViewModel: SettingsViewModel
 
     private lateinit var userLangPref: String
@@ -116,9 +127,9 @@ class MainActivity : ComponentActivity() {
             )
         )[SettingsViewModel::class.java]
 
-        locationViewModel = ViewModelProvider(
+        mainViewModel = ViewModelProvider(
             this,
-            LocationFactory(
+            MainViewModelFactory(
                 LocationRepositoryImp.getInstance(LocationServices.getFusedLocationProviderClient(
                     this
                 ), LocationLocalDataSourceImp(
@@ -127,8 +138,8 @@ class MainActivity : ComponentActivity() {
                     LocationRemoteDataSourceImp()
                 )
             )
-        )[LocationViewModel::class.java]
-
+        )[MainViewModel::class.java]
+        mainViewModel.checkNetworkStatus(this)
         // User Preferences
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
             userLangPref = settingsViewModel.getLanguagePref() ?: "System Default"
@@ -166,12 +177,13 @@ class MainActivity : ComponentActivity() {
                     LocationRemoteDataSourceImp()
                 )
             )
-        ).get(HomeViewModel::class.java)
+        )[HomeViewModel::class.java]
+
 
         if (checkPermissions()) {
             if (isLocationEnabled(this)) {
                 Log.i(TAG, "onStart: ")
-                locationViewModel.getFreshLocation { location ->
+                mainViewModel.getFreshLocation { location ->
                     location?.let {
                         homeViewModel.updateLocation(
                             latitude = it.latitude,
@@ -210,7 +222,7 @@ class MainActivity : ComponentActivity() {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (isLocationEnabled(this)){
                     Log.i(TAG, "onStart: ")
-                    locationViewModel.getFreshLocation {
+                    mainViewModel.getFreshLocation {
                             location ->
                         location?.let {
                             homeViewModel.updateLocation(
@@ -328,7 +340,8 @@ class MainActivity : ComponentActivity() {
                             )
                             favViewModel.insertLocationIntoFav(locationClicked)
                         }
-                    }
+                    },
+                    {navHostController.popBackStack()}
                 )
             }
 
@@ -351,8 +364,11 @@ class MainActivity : ComponentActivity() {
     }
 
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun MainScreen(modifier: Modifier = Modifier) {
+        val isConnected by mainViewModel.isConnected.collectAsStateWithLifecycle()
+
         val snackBarHostState = remember { SnackbarHostState() }
         val showBottomAppBar = remember { mutableStateOf(true) }
 
@@ -366,6 +382,14 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        LaunchedEffect(isConnected) {
+            if(!isConnected){
+                snackBarHostState.showSnackbar(
+                    message = "No Internet Connection",
+                    duration = SnackbarDuration.Indefinite,
+                )
+            }
+        }
         Scaffold(
             modifier = modifier.fillMaxSize(),
             contentWindowInsets = WindowInsets(0.dp),

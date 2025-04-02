@@ -3,6 +3,7 @@ package com.example.weatherforecast_app.map.view
 import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,14 +15,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,8 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherforecast_app.data.model.LocationInfo
 import com.example.weatherforecast_app.map.viewmodel.MapViewModel
+import com.example.weatherforecast_app.utils.LanguageHelper
 import com.example.weatherforecast_app.utils.formatAddress
-import com.example.weatherforecast_app.utils.getLocationName
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -55,7 +55,11 @@ import com.google.maps.android.compose.rememberCameraPositionState
 @SuppressLint("MissingPermission")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapScreen(viewModel: MapViewModel, onLocationSelected: (LocationInfo) -> Unit) {
+fun MapScreen(
+    viewModel: MapViewModel,
+    onLocationSelected: (LocationInfo) -> Unit,
+    popBackStack: ()->Unit
+) {
 
     val selectedLocation by viewModel.selectedLocation.collectAsStateWithLifecycle()
     val showBottomSheet by viewModel.showBottomSheet.collectAsStateWithLifecycle()
@@ -65,8 +69,12 @@ fun MapScreen(viewModel: MapViewModel, onLocationSelected: (LocationInfo) -> Uni
 
     val bottomSheetState = rememberModalBottomSheetState()
     val context = LocalContext.current
-
+    BackHandler{
+        popBackStack()
+        viewModel.clear()
+    }
     LaunchedEffect(Unit) {
+
         viewModel.message.collect{
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
         }
@@ -105,8 +113,8 @@ fun MapScreen(viewModel: MapViewModel, onLocationSelected: (LocationInfo) -> Uni
         }
     }
 
-    Column(modifier = Modifier) {
-        OutlinedTextField(
+    Column(modifier = Modifier.padding(10.dp)) {
+        TextField(
             value = query,
             onValueChange = {
                 query = it
@@ -115,7 +123,7 @@ fun MapScreen(viewModel: MapViewModel, onLocationSelected: (LocationInfo) -> Uni
             label = { Text("Search Location") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp).padding(top = 20.dp)
+                .padding(top = 20.dp)
                 .background(color = Color.White)
         )
 
@@ -126,7 +134,6 @@ fun MapScreen(viewModel: MapViewModel, onLocationSelected: (LocationInfo) -> Uni
                     text = it,
                     modifier = Modifier
                         .fillMaxWidth().background(Color.White)
-                        .padding(vertical = 4.dp)
                         .clickable {
                             val location = LatLng(LocationInfo.latitude, LocationInfo.longitude)
                             viewModel.updateSelectedLocation(location)
@@ -138,13 +145,17 @@ fun MapScreen(viewModel: MapViewModel, onLocationSelected: (LocationInfo) -> Uni
                             )
                         }
                 )
+                HorizontalDivider()
             }
         }
     }
 
     if (showBottomSheet) {
         ModalBottomSheet(
-            onDismissRequest = { viewModel.dismissBottomSheet() },
+            onDismissRequest = {
+                viewModel.dismissBottomSheet()
+
+                               },
             sheetState = bottomSheetState
         ) {
             selectedLocation?.let {
@@ -157,7 +168,7 @@ fun MapScreen(viewModel: MapViewModel, onLocationSelected: (LocationInfo) -> Uni
 //                    ?: "Unknown City"
 //
 //                val country = address?.countryName ?: "Unknown Country"
-                viewModel.searchLocationByCoordinate(it.latitude, it.longitude)
+                viewModel.searchLocationByCoordinate(it.latitude, it.longitude, LanguageHelper.getSystemLocale().language)
 
                 searchedLocation?.let { location ->
                     val formattedAddress = location.features.firstOrNull()?.properties?.let { it1 ->
@@ -192,7 +203,6 @@ fun MapScreen(viewModel: MapViewModel, onLocationSelected: (LocationInfo) -> Uni
                                     country = ""
                                 )
                                 onLocationSelected(locationClicked)
-                                //viewModel.insertLocationIntoFav(locationClicked)
                                 viewModel.dismissBottomSheet()
                             }) {
                                 Text(

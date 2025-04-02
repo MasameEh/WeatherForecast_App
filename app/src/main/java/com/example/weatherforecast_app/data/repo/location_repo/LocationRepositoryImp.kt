@@ -60,8 +60,9 @@ class LocationRepositoryImp private constructor(
     override fun searchLocationByCoordinate(
         latitude: Double,
         longitude: Double,
+        language: String
     ): Flow<LocationResponse> {
-        return remoteDataSource.searchLocationByCoordinate(latitude, longitude)
+        return remoteDataSource.searchLocationByCoordinate(latitude, longitude, language)
     }
 
     override suspend fun insertLocation(location: LocationInfo): Long {

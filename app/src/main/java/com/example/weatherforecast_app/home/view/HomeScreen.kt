@@ -39,6 +39,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,6 +63,7 @@ import com.example.weatherforecast_app.utils.formatUnixTimestamp
 import com.example.weatherforecast_app.utils.getDayOfWeek
 import com.example.weatherforecast_app.utils.getHourlyForecast
 import com.example.weatherforecast_app.utils.getLocationName
+import com.example.weatherforecast_app.utils.getWeatherIcon
 import com.example.weatherforecast_app.utils.getWeeklyForecast
 import com.example.weatherforecast_app.utils.metersPerSecondToMilesPerHour
 import java.text.SimpleDateFormat
@@ -79,33 +81,15 @@ fun HomeScreen(viewModel: HomeViewModel) {
     val weeklyWeatherState by viewModel.weeklyWeatherData.collectAsStateWithLifecycle()
     val searchedLocation by viewModel.searchedLocation.collectAsStateWithLifecycle()
 
-    val userTempUnitPref = viewModel.getTemperatureUnitPref() ?: "Ce"
+    val userTempUnitPref = viewModel.getTemperatureUnitPref() ?: "metric"
     val userWindUnitPref = viewModel.getWindUnitPref() ?: "m/s"
 
-    Log.i(TAG, "userTempUnitPref: $userTempUnitPref ")
-
-    val ctx = LocalContext.current
+    Log.i(TAG, "userTempUnitPref: $userTempUnitPref")
     var formattedAddress = ""
     var country =  ""
 
-    Log.i(TAG, "HomeScreen: address")
     locationState?.let { location ->
-//        val address = getLocationName(ctx, location.lat, location.lon)
-//        city = address?.locality
-//            ?: address?.getAddressLine(0)
-//                ?.substringBefore(",") // Extracts  the city
-//                ?.replace(
-//                    Regex(
-//                        "\\d+|\\b(?:Street|St|Rd|Avenue|Ave|Blvd|P.O. Box|PO Box)\\b",
-//                        RegexOption.IGNORE_CASE
-//                    ), ""
-//                )
-//                ?.trim()
-//                    ?: "Unknown City"
-//        country = address?.countryName ?: "Unknown Country"
-//        Log.i(TAG, "address $city: $country")
-
-        viewModel.searchLocationByCoordinate(location.lat, location.lon)
+        viewModel.searchLocationByCoordinate(location.lat, location.lon, LanguageHelper.getSystemLocale().language)
         searchedLocation?.let { response ->
              formattedAddress = response.features.firstOrNull()?.properties?.let { it1 ->
                 formatAddress(it1.address)
@@ -114,7 +98,6 @@ fun HomeScreen(viewModel: HomeViewModel) {
     }
 
     LaunchedEffect(locationState) {
-        Log.i(TAG, "locationState ${locationState?.lat}: $country")
         locationState?.let {
             viewModel.getCurrentWeather(
                 it.lat,
@@ -144,13 +127,16 @@ fun HomeScreen(viewModel: HomeViewModel) {
             }
         }
         is ResponseState.Failure -> {
-            Box(
-                contentAlignment = Alignment.Center ,
-                modifier = Modifier.fillMaxSize()
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .gradientBackground().padding(15.dp)
             ) {
                 Text(
                     stringResource(R.string.sorry),
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     color = Color.White
                 )
                 Spacer(Modifier.height(10.dp))
@@ -162,8 +148,15 @@ fun HomeScreen(viewModel: HomeViewModel) {
                         disabledContainerColor = Color.Gray
                     ),
                     onClick = {
+                        Log.i(TAG, "try again: $locationState")
                         locationState?.let {
                             viewModel.getCurrentWeather(
+                                it.lat,
+                                it.lon,
+                                LanguageHelper.getSystemLocale().language,
+                                userTempUnitPref
+                            )
+                            viewModel.getWeeklyWeather(
                                 it.lat,
                                 it.lon,
                                 LanguageHelper.getSystemLocale().language,
@@ -178,42 +171,12 @@ fun HomeScreen(viewModel: HomeViewModel) {
         }
         is ResponseState.Success -> {
             val successCurrentWeatherData = (currentWeatherState as ResponseState.Success).data as WeatherDTO
-            Log.i(TAG, "HomeScreen-> CurrentWeatherData: ${successCurrentWeatherData.placeInfo} ${successCurrentWeatherData.weather} ")
 
             when(weeklyWeatherState){
                 is ResponseState.Failure ->
-                    Box(
-                        contentAlignment = Alignment.Center ,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .gradientBackground()
+                    Column(
+
                     ) {
-                        Text(
-                            stringResource(R.string.sorry),
-                            style = MaterialTheme.typography.titleLarge,
-                            color = Color.White
-                        )
-                        Spacer(Modifier.height(10.dp))
-                        Button(
-                            colors = ButtonColors(
-                                containerColor = Color.Gray,
-                                contentColor = Color.White,
-                                disabledContentColor = Color.White,
-                                disabledContainerColor = Color.Gray
-                            ),
-                            onClick = {
-                                locationState?.let {
-                                    viewModel.getCurrentWeather(
-                                        it.lat,
-                                        it.lon,
-                                        LanguageHelper.getSystemLocale().language,
-                                        userTempUnitPref
-                                    )
-                                }
-                            }
-                        ) {
-                            Text(stringResource(R.string.try_again))
-                        }
                     }
                 ResponseState.Loading ->
                     Box(
@@ -225,13 +188,10 @@ fun HomeScreen(viewModel: HomeViewModel) {
                     CircularProgressIndicator(color = onSecondaryColor)
                 }
                 is ResponseState.Success ->{
+
                     val successWeeklyWeatherData =
                         (weeklyWeatherState as ResponseState.Success).data as WeatherResponse
 
-                    Log.i(
-                        TAG,
-                        "HomeScreen-> WeeklyWeatherData: ${successWeeklyWeatherData.message} ${successWeeklyWeatherData.city}  ${successWeeklyWeatherData.count} "
-                    )
                     Column(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier
@@ -273,7 +233,6 @@ fun CurrentWeatherUI(
     val date = formatter.format(Date())
 
 
-    Log.i(TAG, "CurrentWeatherUI: ${currentWeatherData.placeInfo.country} ${currentWeatherData.name}")
     Column(
         modifier = Modifier.padding(start = 18.dp, top = 20.dp, end = 18.dp)
     ) {
@@ -291,11 +250,12 @@ fun CurrentWeatherUI(
             .fillMaxWidth()
     ) {
         Image(
-            painter = painterResource(R.drawable.clouds),
+            painter = painterResource(getWeatherIcon(currentWeatherData.weather[0].icon)),
             contentScale = ContentScale.Fit,
-            contentDescription =  null,
-            modifier = Modifier.size(120.dp)
+            contentDescription = "current weather icon",
+            modifier = Modifier.size(130.dp)
         )
+
         currentWeatherData.placeInfo.sunrise?.let { formatUnixTimestamp(it) }?.let {
             TemperatureDisplay(
                 temperature = currentWeatherData.mainWeatherData.temperature.roundToInt(),
@@ -306,6 +266,7 @@ fun CurrentWeatherUI(
             )
         }
         Spacer(Modifier.height(8.dp))
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
@@ -370,8 +331,10 @@ fun TemperatureDisplay(temperature: Int,
         Text(
             text = formatNumberToLocale(temperature, context),
             color = Color.White,
-            fontSize = 32.sp,
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontSize = 40.sp,
+                fontWeight = FontWeight.Bold
+            )
         )
         Text(
             text = stringResource(unitResId),
@@ -515,18 +478,18 @@ fun HourlyWeatherItem(weatherDTO: WeatherDTO, unit: String?){
             )
 
             Spacer(Modifier.height(5.dp))
-            GlideImage(
-                model = "https://openweathermap.org/img/wn/${weatherDTO.weather[0].icon}@2x.png",
-                contentDescription = " ",
-                modifier = Modifier.size(30.dp),
-                contentScale = ContentScale.Fit,
-            )
-//            Image(
-//                painter = painterResource(R.drawable.sunrise),
+//            GlideImage(
+//                model = "https://openweathermap.org/img/wn/${weatherDTO.weather[0].icon}@2x.png",
+//                contentDescription = " ",
+//                modifier = Modifier.size(30.dp),
 //                contentScale = ContentScale.Fit,
-//                contentDescription = null,
-//                modifier = Modifier.size(30.dp)
 //            )
+            Image(
+                painter = painterResource(getWeatherIcon(weatherDTO.weather[0].icon)),
+                contentScale = ContentScale.Fit,
+                contentDescription = "weather icon",
+                modifier = Modifier.size(30.dp)
+            )
             Spacer(Modifier.height(5.dp))
             Row {
                 Text(
@@ -613,22 +576,24 @@ fun WeeklyWeatherItem(weatherDTO: WeatherDTO, unit: String?){
                 modifier = Modifier.weight(1.3f)
 
             )
-            GlideImage(
-                model = "https://openweathermap.org/img/wn/${weatherDTO.weather[0].icon}@2x.png",
-                contentDescription = " ",
-                modifier = Modifier
-                    .size(35.dp)
-                    .weight(1.7f),
-                contentScale = ContentScale.Fit,
-            )
-//            Image(
-//                painter = painterResource(R.drawable.sunrise),
+//            GlideImage(
+//                model = "https://openweathermap.org/img/wn/${weatherDTO.weather[0].icon}@2x.png",
+//                contentDescription = " ",
+//                modifier = Modifier
+//                    .size(35.dp)
+//                    .weight(1.7f),
 //                contentScale = ContentScale.Fit,
-//                contentDescription = null,
-//                modifier = Modifier.size(30.dp)
 //            )
+            Image(
+                painter = painterResource(getWeatherIcon(weatherDTO.weather[0].icon)),
+                contentScale = ContentScale.Fit,
+                contentDescription = "weather icon",
+                modifier = Modifier
+                    .size(30.dp)
+                    .weight(1.5f),
+            )
             Row(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1.2f),
                 verticalAlignment = Alignment.CenterVertically,
                 ) {
                 Text(

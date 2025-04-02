@@ -85,9 +85,9 @@ class HomeViewModel(
     }
 
 
-    fun searchLocationByCoordinate(latitude: Double, longitude: Double){
+    fun searchLocationByCoordinate(latitude: Double, longitude: Double, language: String){
         viewModelScope.launch(Dispatchers.IO) {
-            val result = locationRepo.searchLocationByCoordinate(latitude, longitude)
+            val result = locationRepo.searchLocationByCoordinate(latitude, longitude,language)
             result.catch { e->
                 Log.i(TAG, "err: ${e.message}")
             }.collect{
@@ -102,6 +102,7 @@ class HomeViewModel(
          val temperatureUnitPref = when(userPrefRepo.getTemperatureUnit()){
              "Celsius" -> "metric"
              "Fahrenheit" -> "imperial"
+             "Kelvin" -> "Kelvin"
              else -> null
         }
         return temperatureUnitPref

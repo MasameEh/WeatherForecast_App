@@ -57,12 +57,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.weatherforecast_app.R
 import com.example.weatherforecast_app.data.model.AlertInfo
 import com.example.weatherforecast_app.data.repo.user_pref.UserPreferenceRepositoryImp
 import com.example.weatherforecast_app.ui.theme.MediumBlue
@@ -124,7 +126,7 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Weather Alerts",
+                        text = stringResource(R.string.weather_alerts),
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleLarge

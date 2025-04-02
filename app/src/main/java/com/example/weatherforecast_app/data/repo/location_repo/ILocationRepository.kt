@@ -15,6 +15,7 @@ interface ILocationRepository {
     fun searchLocationByCoordinate(
         latitude: Double,
         longitude: Double,
+        language: String
     ): Flow<LocationResponse>
 
     suspend fun insertLocation(location: LocationInfo) : Long

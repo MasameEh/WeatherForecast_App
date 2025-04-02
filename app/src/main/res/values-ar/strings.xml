@@ -37,4 +37,5 @@
     <string name="notification">اشعارات</string>
     <string name="enable">تفعيل</string>
     <string name="disable">تعطيل</string>
+    <string name="weather_alerts">تنبيهات الطقس</string>
 </resources>

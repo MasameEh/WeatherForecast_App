@@ -127,7 +127,7 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel,
                 SettingsItem(
                     Modifier.weight(1f),
                     name = stringResource(R.string.temp_unit),
-                    listOf("Celsius", "Fahrenheit", "kelvin"), {
+                    listOf("Celsius", "Fahrenheit", "Kelvin"), {
                         selectedTempUnit = it
                         settingsViewModel.updateTemperatureUnit(it)
                     },
@@ -240,13 +240,13 @@ fun SettingsItem(
 
 
 @StringRes
-fun getResource(language: String): Int {
-    return when (language) {
+fun getResource(resource: String): Int {
+    return when (resource) {
         "English" -> R.string.en
         "Arabic" -> R.string.ar
         "Celsius" -> R.string.c
         "Fahrenheit" -> R.string.f
-        "kelvin" -> R.string.k
+        "Kelvin" -> R.string.k
         "m/s" -> R.string.meter_per_sec
         "m/h" -> R.string.mile_per_hour
         "MAP" -> R.string.map
@@ -257,8 +257,3 @@ fun getResource(language: String): Int {
     }
 }
 
-fun Context.findActivity() : Activity? = when(this){
-    is Activity -> this
-    is ContextWrapper -> baseContext.findActivity()
-    else -> null
-}

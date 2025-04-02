@@ -11,5 +11,6 @@ interface ILocationRemoteDataSource {
      fun searchLocationByCoordinate(
         latitude: Double,
         longitude: Double,
+        language: String ="en"
     ): Flow<LocationResponse>
 }

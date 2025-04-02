@@ -3,6 +3,7 @@ package com.example.weatherforecast_app.utils
 import android.content.Context
 import android.location.Address
 import android.location.Geocoder
+import com.example.weatherforecast_app.R
 import com.example.weatherforecast_app.data.model.AddressInfo
 import com.example.weatherforecast_app.data.model.WeatherDTO
 import java.text.NumberFormat
@@ -79,4 +80,29 @@ fun formatAddress(address: AddressInfo): String {
 
     return listOfNotNull(address.road, city, state, country)
         .joinToString(", ")
+}
+
+fun getWeatherIcon(iconName: String): Int {
+
+    return when(iconName){
+        "01n" -> R.drawable.clear_sky_n
+        "01d" ->  R.drawable.clear_sky
+        "02n" ->  R.drawable.few_clouds
+        "02d" ->  R.drawable.few_clouds
+        "03n" ->  R.drawable.cloudy
+        "03d" ->  R.drawable.cloudy
+        "04n" ->  R.drawable.broken_clouds
+        "04d" ->  R.drawable.broken_clouds
+        "09n" ->  R.drawable.rainy_day
+        "09d" ->  R.drawable.rainy_day
+        "10n" ->  R.drawable.rainy_day
+        "10d" ->  R.drawable.rainy_day
+        "11n" ->  R.drawable.storm
+        "11d" ->  R.drawable.storm
+        "13n" ->  R.drawable.snowflake
+        "13d" ->  R.drawable.snowflake
+        "50n" ->  R.drawable.snowflake
+        "50d" ->  R.drawable.mist
+        else-> R.drawable.clear_sky
+    }
 }

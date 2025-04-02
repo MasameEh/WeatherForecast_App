@@ -214,7 +214,7 @@ fun FavoriteLocationItem(viewModel: FavoriteViewModel,
                    tint = MediumBlue,
                )
                Text(
-                   text= "${location.city}, ${location.country}",
+                   text= location.city,
                    style = MaterialTheme.typography.titleMedium,
                    fontWeight = FontWeight.Normal,
                    textAlign = TextAlign.Center,

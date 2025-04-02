@@ -20,11 +20,13 @@ class LocationRemoteDataSourceImp : ILocationRemoteDataSource {
     override fun searchLocationByCoordinate(
         latitude: Double,
         longitude: Double,
+        language: String
     ): Flow<LocationResponse> {
         return flow {
             val result = RetrofitHelper.locationService.searchLocationByCoordinate(
                 latitude = latitude,
-                longitude = longitude
+                longitude = longitude,
+                language = language
             )
             emit(result)
         }

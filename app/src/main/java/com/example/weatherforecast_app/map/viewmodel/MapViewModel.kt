@@ -67,9 +67,9 @@ class MapViewModel(
 
     }
 
-    fun searchLocationByCoordinate(latitude: Double, longitude: Double){
+    fun searchLocationByCoordinate(latitude: Double, longitude: Double, language: String){
         viewModelScope.launch(Dispatchers.IO) {
-            val result = repo.searchLocationByCoordinate(latitude, longitude)
+            val result = repo.searchLocationByCoordinate(latitude, longitude, language)
             Log.i(TAG, "searchLocationByCoordinate: $latitude $longitude")
             result.catch { e->
                 Log.i(TAG, "err: ${e.message}")
@@ -90,6 +90,10 @@ class MapViewModel(
                 Log.i(TAG, "result: $it")
             }
         }
+    }
+
+    fun clear(){
+        _searchResults.value = emptyList()
     }
 }
 
