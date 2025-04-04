@@ -71,6 +71,7 @@ import com.example.weatherforecast_app.ui.theme.MediumBlue
 import com.example.weatherforecast_app.ui.theme.gradientBackground
 import com.example.weatherforecast_app.ui.theme.onSecondaryColor
 import com.example.weatherforecast_app.utils.Constants.REQUEST_CODE_NOTIFICATIONS
+import com.example.weatherforecast_app.utils.LanguageHelper
 import com.example.weatherforecast_app.utils.ResponseState
 import com.example.weatherforecast_app.utils.formatDateTimestamp
 import com.example.weatherforecast_app.weather_alerts.viewmodel.AlertsViewModel
@@ -409,9 +410,19 @@ fun AlertItem(viewModel: AlertsViewModel,
                         alert: AlertInfo, ){
     val context = LocalContext.current
     val dismissState = rememberSwipeToDismissBoxState()
+
+    val locale = LanguageHelper.getAppLocale(context)
+    val isArabic = locale.language == "ar"
+    val isEnglish = locale.language == "en"
+
+    val enableDismissFromStartToEnd = isArabic
+
+    val enableDismissFromEndToStart = isEnglish
+
     SwipeToDismissBox(
         state = dismissState,
-        enableDismissFromStartToEnd = false,
+        enableDismissFromStartToEnd = enableDismissFromStartToEnd,
+        enableDismissFromEndToStart = enableDismissFromEndToStart,
         backgroundContent = {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -427,14 +438,22 @@ fun AlertItem(viewModel: AlertsViewModel,
     ){
         when(dismissState.currentValue){
             SwipeToDismissBoxValue.StartToEnd ->{
+                if (isArabic) {
+                    viewModel.deleteAlertFromAlerts(
+                        LocalContext.current,
+                        alert = alert
+                    )
+                }
             }
 
             SwipeToDismissBoxValue.EndToStart -> {
                 Log.i(TAG, "DeleteAlertItem: ")
-                viewModel.deleteAlertFromAlerts(
-                    LocalContext.current,
-                    alert = alert
-                )
+                if(isEnglish){
+                    viewModel.deleteAlertFromAlerts(
+                        LocalContext.current,
+                        alert = alert
+                    )
+                }
             }
             SwipeToDismissBoxValue.Settled -> {
 

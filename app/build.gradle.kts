@@ -126,4 +126,6 @@ dependencies {
     // InstantTaskExecutorRule
     testImplementation ("androidx.arch.core:core-testing:2.1.0")
     androidTestImplementation ("androidx.arch.core:core-testing:2.1.0")
+
+    testImplementation("app.cash.turbine:turbine:1.2.0")
 }

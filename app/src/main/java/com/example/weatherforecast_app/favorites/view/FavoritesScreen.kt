@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -57,7 +58,9 @@ import com.example.weatherforecast_app.ui.theme.MediumBlue
 import com.example.weatherforecast_app.ui.theme.Tertiary
 import com.example.weatherforecast_app.ui.theme.gradientBackground
 import com.example.weatherforecast_app.ui.theme.onSecondaryColor
+import com.example.weatherforecast_app.utils.LanguageHelper
 import com.example.weatherforecast_app.utils.ResponseState
+import java.util.Locale
 
 private const val TAG = "FavoritesScreen"
 @OptIn(ExperimentalMaterial3Api::class)
@@ -156,11 +159,23 @@ fun FavoriteLocations(viewModel: FavoriteViewModel,
 fun FavoriteLocationItem(viewModel: FavoriteViewModel,
                          location: LocationInfo,
                          navigateToFavoriteDetails: (Double, Double, String) -> Unit){
-
     val dismissState = rememberSwipeToDismissBoxState()
+    val context = LocalContext.current
+
+    val locale = LanguageHelper.getAppLocale(context)
+    val isArabic = locale.language == "ar"
+    val isEnglish = locale.language == "en"
+
+    val enableDismissFromStartToEnd = isArabic
+
+    val enableDismissFromEndToStart = isEnglish
+
+    Log.i(TAG, "isArabic: $isArabic")
+    Log.i(TAG, "isEnglish: $isEnglish")
    SwipeToDismissBox(
        state = dismissState,
-       enableDismissFromStartToEnd = false,
+       enableDismissFromStartToEnd = enableDismissFromStartToEnd,
+       enableDismissFromEndToStart = enableDismissFromEndToStart,
        backgroundContent = {
            Box(
                modifier = Modifier.fillMaxSize(),
@@ -176,11 +191,17 @@ fun FavoriteLocationItem(viewModel: FavoriteViewModel,
    ){
        when(dismissState.currentValue){
             SwipeToDismissBoxValue.StartToEnd ->{
-            }
+                if (isArabic) {
+                    viewModel.deleteLocationFromFav(location)
+                }
 
+            }
            SwipeToDismissBoxValue.EndToStart -> {
                Log.i(TAG, "FavoriteLocationItem: ")
-               viewModel.deleteLocationFromFav(location)
+               if (isEnglish) {
+                   viewModel.deleteLocationFromFav(location)
+               }
+
            }
            SwipeToDismissBoxValue.Settled -> {
 
@@ -198,7 +219,11 @@ fun FavoriteLocationItem(viewModel: FavoriteViewModel,
                .fillMaxWidth()
                .border(2.dp, onSecondaryColor, shape = RoundedCornerShape(15.dp))
                .clickable {
-                   navigateToFavoriteDetails.invoke(location.latitude, location.longitude, location.city)
+                   navigateToFavoriteDetails.invoke(
+                       location.latitude,
+                       location.longitude,
+                       location.city
+                   )
                }
        )  {
            Row(
@@ -220,7 +245,6 @@ fun FavoriteLocationItem(viewModel: FavoriteViewModel,
                    textAlign = TextAlign.Center,
                    color = MediumBlue,
                    modifier = Modifier.weight(2f)
-                   //text= "$city, $country"
                )
                Icon(
                    imageVector = Icons.Default.KeyboardArrowRight,

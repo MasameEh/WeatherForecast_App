@@ -5,6 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,13 +16,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -113,8 +119,8 @@ fun MapScreen(
         }
     }
 
-    Column(modifier = Modifier.padding(10.dp)) {
-        TextField(
+    Column(modifier = Modifier.padding(top = 50.dp, start = 10.dp, end = 10.dp)) {
+        OutlinedTextField(
             value = query,
             onValueChange = {
                 query = it
@@ -122,9 +128,12 @@ fun MapScreen(
             },
             label = { Text("Search Location") },
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 20.dp)
-                .background(color = Color.White)
+                .fillMaxWidth(),
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+            singleLine = true,
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                containerColor = Color.White
+            ),
         )
 
         searchResults.forEach { LocationInfo ->
@@ -159,15 +168,6 @@ fun MapScreen(
             sheetState = bottomSheetState
         ) {
             selectedLocation?.let {
-//                val address = getLocationName(LocalContext.current, it.latitude, it.longitude)
-//                val city = address?.locality
-//                    ?: address?.getAddressLine(0)
-//                        ?.substringBefore(",") // Extracts  the city
-//                        ?.replace(Regex("\\d+|\\b(?:Street|St|Rd|Avenue|Ave|Blvd|P.O. Box|PO Box)\\b", RegexOption.IGNORE_CASE), "")
-//                        ?.trim()
-//                    ?: "Unknown City"
-//
-//                val country = address?.countryName ?: "Unknown Country"
                 viewModel.searchLocationByCoordinate(it.latitude, it.longitude, LanguageHelper.getAppLocale(context).language)
 
                 searchedLocation?.let { location ->

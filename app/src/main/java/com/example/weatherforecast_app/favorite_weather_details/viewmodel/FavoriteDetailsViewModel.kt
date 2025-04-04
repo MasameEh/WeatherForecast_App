@@ -75,6 +75,7 @@ class FavoriteDetailsViewModel(
         val temperatureUnitPref = when(userPrefRepo.getTemperatureUnit()){
             "Celsius" -> "metric"
             "Fahrenheit" -> "imperial"
+            "Kelvin" -> "Kelvin"
             else -> null
         }
         return temperatureUnitPref

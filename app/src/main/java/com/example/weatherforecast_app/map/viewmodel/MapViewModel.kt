@@ -56,10 +56,8 @@ class MapViewModel(
                     mutableMsg.emit("Added to Favorites")
                 }else{
                     mutableMsg.emit("Error!! Couldn't be added, try again")
-                    Log.i(TAG, "insertLocationIntoFav: res = $result")
                 }
             }catch (ex: Exception){
-                Log.i(TAG, "insertLocationIntoFav: ex = $ex")
                 mutableMsg.emit("Error!! Couldn't be added, try again")
             }
 
@@ -75,10 +73,10 @@ class MapViewModel(
                 Log.i(TAG, "err: ${e.message}")
             }.collect{
                 _searchedLocation.value = it
-                Log.i(TAG, "result: $it")
             }
         }
     }
+
     fun searchLocationByName(query: String){
         viewModelScope.launch(Dispatchers.IO) {
             val result = repo.searchLocationByName(query)
@@ -87,7 +85,6 @@ class MapViewModel(
                 _searchResults.value = emptyList()
             }.collect{
                 _searchResults.value = it
-                Log.i(TAG, "result: $it")
             }
         }
     }

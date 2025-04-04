@@ -1,6 +1,5 @@
 package com.example.weatherforecast_app.favorites.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -10,6 +9,7 @@ import com.example.weatherforecast_app.utils.ResponseState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +25,7 @@ class FavoriteViewModel(
     val favoritesList: StateFlow<ResponseState> = _mutableFavoritesList.asStateFlow()
 
     private val mutableMsg: MutableSharedFlow<String> = MutableSharedFlow()
-    val message = mutableMsg.asSharedFlow()
+    val message: SharedFlow<String> = mutableMsg.asSharedFlow()
 
     fun getAllFavorites(){
         viewModelScope.launch(Dispatchers.IO) {

@@ -42,7 +42,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.example.weatherforecast_app.R
 import com.example.weatherforecast_app.utils.ResponseState
 import com.example.weatherforecast_app.data.model.WeatherDTO
@@ -84,9 +83,15 @@ fun HomeScreen(viewModel: HomeViewModel) {
     var country =  ""
     val context = LocalContext.current
 
-    Log.i(TAG, "language: ${LanguageHelper.getAppLocale(context).language}")
+    Log.i(TAG, "language: /${LanguageHelper.getAppLocale(context).language}/")
     locationState?.let { location ->
-        viewModel.searchLocationByCoordinate(location.lat, location.lon, LanguageHelper.getAppLocale(context).language)
+        viewModel.searchLocationByCoordinate(
+            location.lat,
+            location.lon,
+            if (LanguageHelper.getAppLocale(context).language.isBlank()) "en" else LanguageHelper.getAppLocale(
+                context
+            ).language
+        )
         searchedLocation?.let { response ->
              formattedAddress = response.features.firstOrNull()?.properties?.let { it1 ->
                 formatAddress(it1.address)
@@ -232,11 +237,20 @@ fun CurrentWeatherUI(
     val date = formatter.format(Date())
 
 
+    val addressParts = place.split(",").map { it.trim() }
+    Log.i(TAG, "CurrentWeatherUI: $addressParts")
+    val city =
+        if (addressParts.isNotEmpty() && addressParts.size > 2) addressParts[addressParts.size - 2] + ", " + addressParts[addressParts.size - 3]
+        else if (addressParts.size == 2) addressParts[0]
+        else ""
+    val country = if (addressParts.isNotEmpty()) addressParts.last() else ""
+
+    Log.i(TAG, "CurrentWeatherUI: $city country: $country")
     Column(
         modifier = Modifier.padding(start = 18.dp, top = 20.dp, end = 18.dp)
     ) {
         Text(
-            text = "${place}\n$date",
+            text = "${city}, $country\n$date",
             color = Color.White,
             style = MaterialTheme.typography.titleMedium
         )
@@ -447,8 +461,6 @@ fun HourlyWeather(weatherList: List<WeatherDTO>, unit: String?){
 }
 
 
-
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun HourlyWeatherItem(weatherDTO: WeatherDTO, unit: String?){
 
@@ -477,12 +489,6 @@ fun HourlyWeatherItem(weatherDTO: WeatherDTO, unit: String?){
             )
 
             Spacer(Modifier.height(5.dp))
-//            GlideImage(
-//                model = "https://openweathermap.org/img/wn/${weatherDTO.weather[0].icon}@2x.png",
-//                contentDescription = " ",
-//                modifier = Modifier.size(30.dp),
-//                contentScale = ContentScale.Fit,
-//            )
             Image(
                 painter = painterResource(getWeatherIcon(weatherDTO.weather[0].icon)),
                 contentScale = ContentScale.Fit,
@@ -532,7 +538,6 @@ fun WeeklyWeather(weatherList: List<WeatherDTO>, unit: String?){
 }
 
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun WeeklyWeatherItem(weatherDTO: WeatherDTO, unit: String?){
 
