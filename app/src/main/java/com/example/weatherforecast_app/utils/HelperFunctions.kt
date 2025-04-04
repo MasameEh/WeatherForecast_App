@@ -14,15 +14,15 @@ import java.util.Objects
 import java.util.TimeZone
 
 
-fun formatUnixTimestamp(timestamp: Long): String {
+fun formatUnixTimestamp(timestamp: Long, context: Context): String {
     val date = Date(timestamp * 1000) // Convert seconds to milliseconds
-    val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+    val formatter = SimpleDateFormat("hh:mm a", Locale(LanguageHelper.getAppLocale(context).language))
     formatter.timeZone = TimeZone.getTimeZone("UTC")
     return formatter.format(date)
 }
-fun formatDateTimestamp(timestamp: Long): String {
+fun formatDateTimestamp(timestamp: Long, context: Context): String {
     val date = Date(timestamp)
-    val formatter = SimpleDateFormat("EEE, dd MMM yyyy - \n hh:mm a", Locale.getDefault())
+    val formatter = SimpleDateFormat("EEE, dd MMM yyyy - \n hh:mm a", Locale(LanguageHelper.getAppLocale(context).language))
     return formatter.format(date)
 }
 
@@ -30,18 +30,16 @@ fun getHourlyForecast(list: List<WeatherDTO>): List<WeatherDTO> {
     return list.take(8)
 }
 
-fun getWeeklyForecast(list: List<WeatherDTO>): List<WeatherDTO> {
-
-
+fun getWeeklyForecast(list: List<WeatherDTO>, context: Context): List<WeatherDTO> {
     return list.groupBy {
-        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(it.dateTime * 1000L))
+        SimpleDateFormat("yyyy-MM-dd",  Locale(LanguageHelper.getAppLocale(context).language)).format(Date(it.dateTime * 1000L))
     }.map { (_, entries) ->
         entries.getOrNull(4) ?: entries.get(0)
     }
 }
 
-fun getDayOfWeek(weatherDTO: WeatherDTO): String {
-    val dayOfWeek = SimpleDateFormat("EEEE", Locale.getDefault()).format(Date(weatherDTO.dateTime * 1000L))
+fun getDayOfWeek(weatherDTO: WeatherDTO, context: Context): String {
+    val dayOfWeek = SimpleDateFormat("EEEE",  Locale(LanguageHelper.getAppLocale(context).language)).format(Date(weatherDTO.dateTime * 1000L))
     val today = SimpleDateFormat("EEEE", Locale.getDefault()).format(Date())
     return if (dayOfWeek == today) "Today" else dayOfWeek
 }

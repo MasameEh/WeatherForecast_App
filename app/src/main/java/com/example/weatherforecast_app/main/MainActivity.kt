@@ -90,6 +90,7 @@ import com.example.weatherforecast_app.settings.viewmodel.SettingsViewModelFacto
 import com.example.weatherforecast_app.utils.Constants.LOCATION_REQUEST_CODE
 import com.example.weatherforecast_app.utils.Constants.REQUEST_CODE_NOTIFICATIONS
 import com.example.weatherforecast_app.utils.LanguageHelper
+import com.example.weatherforecast_app.utils.LanguageHelper.setAppLocale
 import com.example.weatherforecast_app.weather_alerts.view.WeatherAlertsScreen
 import com.example.weatherforecast_app.weather_alerts.viewmodel.AlertsViewModel
 import com.example.weatherforecast_app.weather_alerts.viewmodel.AlertsViewModelFactory
@@ -145,9 +146,8 @@ class MainActivity : ComponentActivity() {
         // User Preferences
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
             userLangPref = settingsViewModel.getLanguagePref() ?: "System Default"
-            LanguageHelper.setAppLocale(this, userLangPref)
-            if (userLangPref == "ar") View.LAYOUT_DIRECTION_RTL
-            else View.LAYOUT_DIRECTION_LTR
+            setAppLocale(this, userLangPref, true)
+            Log.i(TAG, "onCreate: $userLangPref")
         }
 
         setContent {
@@ -160,13 +160,6 @@ class MainActivity : ComponentActivity() {
 
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        window.decorView.layoutDirection =
-            if (userLangPref == "ar") View.LAYOUT_DIRECTION_RTL
-            else View.LAYOUT_DIRECTION_LTR
-
-    }
     override fun onStart() {
         super.onStart()
         Log.i(TAG, "onStart: ")

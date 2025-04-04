@@ -78,7 +78,7 @@ class WeatherAlertsWorker(
         runBlocking {
             weatherRepo.getCurrentWeather(
                 latitude, longitude,
-                language = LanguageHelper.getSystemLocale().language,
+                language = LanguageHelper.getAppLocale(context).language,
                 tempUnit = "metric"
             ).catch { }
                 .collect { result ->

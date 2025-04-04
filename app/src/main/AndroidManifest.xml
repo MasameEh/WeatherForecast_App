@@ -18,12 +18,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WeatherForecast_App"
         tools:targetApi="tiramisu"
-        android:localeConfig="@xml/locales_config">
+        android:localeConfig="@xml/locales_config"
+        android:name=".WeatherApplication">
 
         <activity
             android:name=".main.MainActivity"
             android:exported="true"
-            android:configChanges="locale|layoutDirection"
             android:theme="@style/Theme.WeatherForecast_App">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

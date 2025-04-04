@@ -4,10 +4,12 @@ package com.example.weatherforecast_app.settings.view
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,9 +22,11 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -49,6 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weatherforecast_app.R
+import com.example.weatherforecast_app.main.MainActivity
 import com.example.weatherforecast_app.settings.viewmodel.SettingsViewModel
 import com.example.weatherforecast_app.ui.theme.LightBlue
 
@@ -79,9 +84,9 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel,
         selectedWindUnit = settingsViewModel.getWindUnitPref() ?: "m/s"
         selectedNotificationStatus = settingsViewModel.getUserNotificationStatus()
     }
+
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = {
@@ -106,7 +111,7 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel,
                 .fillMaxSize()
                 .padding(innerPadding)
                 .gradientBackground()
-                .padding(start = 8.dp, end = 8.dp)
+                .padding(start = 8.dp, end = 8.dp, bottom = 20.dp)
                 .statusBarsPadding()
                 .navigationBarsPadding()
         ) {
@@ -119,7 +124,7 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel,
                         Log.i(TAG, "SettingsScreen: $it")
                         selectedLanguage = it
                         settingsViewModel.updateLanguage(it)
-                        LanguageHelper.setAppLocale(context, it)
+                        LanguageHelper.setAppLocale(context, it, false)
                     },
                     selectedOption = selectedLanguage,
                 )
@@ -184,12 +189,13 @@ fun SettingsItem(
     onOptionSelected: (String) -> Unit,
     selectedOption:  String,
 ) {
-
+    val scrollState = rememberScrollState()
     Column(
         modifier
             .background(LightBlue.copy(alpha = 0.5f))
             .fillMaxWidth()
             .border(2.dp, LightBlue, shape = RoundedCornerShape(8.dp))
+            .verticalScroll(scrollState).navigationBarsPadding()
     ) {
 
         Box(
@@ -257,3 +263,9 @@ fun getResource(resource: String): Int {
     }
 }
 
+private fun restartApp(activity: Activity) {
+    val intent = Intent(activity, MainActivity::class.java)
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    activity.startActivity(intent)
+    activity.finish()
+}

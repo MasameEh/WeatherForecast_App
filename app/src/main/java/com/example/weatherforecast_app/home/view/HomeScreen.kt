@@ -1,6 +1,5 @@
 package com.example.weatherforecast_app.home.view
 
-import android.health.connect.datatypes.units.Temperature
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -31,7 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,8 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.util.LogTime
 import com.example.weatherforecast_app.R
 import com.example.weatherforecast_app.utils.ResponseState
 import com.example.weatherforecast_app.data.model.WeatherDTO
@@ -62,7 +58,6 @@ import com.example.weatherforecast_app.utils.formatNumberToLocale
 import com.example.weatherforecast_app.utils.formatUnixTimestamp
 import com.example.weatherforecast_app.utils.getDayOfWeek
 import com.example.weatherforecast_app.utils.getHourlyForecast
-import com.example.weatherforecast_app.utils.getLocationName
 import com.example.weatherforecast_app.utils.getWeatherIcon
 import com.example.weatherforecast_app.utils.getWeeklyForecast
 import com.example.weatherforecast_app.utils.metersPerSecondToMilesPerHour
@@ -87,9 +82,11 @@ fun HomeScreen(viewModel: HomeViewModel) {
     Log.i(TAG, "userTempUnitPref: $userTempUnitPref")
     var formattedAddress = ""
     var country =  ""
+    val context = LocalContext.current
 
+    Log.i(TAG, "language: ${LanguageHelper.getAppLocale(context).language}")
     locationState?.let { location ->
-        viewModel.searchLocationByCoordinate(location.lat, location.lon, LanguageHelper.getSystemLocale().language)
+        viewModel.searchLocationByCoordinate(location.lat, location.lon, LanguageHelper.getAppLocale(context).language)
         searchedLocation?.let { response ->
              formattedAddress = response.features.firstOrNull()?.properties?.let { it1 ->
                 formatAddress(it1.address)
@@ -102,14 +99,14 @@ fun HomeScreen(viewModel: HomeViewModel) {
             viewModel.getCurrentWeather(
                 it.lat,
                 it.lon,
-                LanguageHelper.getSystemLocale().language,
+                LanguageHelper.getAppLocale(context).language,
                 userTempUnitPref
             )
 
             viewModel.getWeeklyWeather(
                 it.lat,
                 it.lon,
-                LanguageHelper.getSystemLocale().language,
+                LanguageHelper.getAppLocale(context).language,
                 userTempUnitPref
             )
         }
@@ -132,7 +129,8 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxSize()
-                    .gradientBackground().padding(15.dp)
+                    .gradientBackground()
+                    .padding(15.dp)
             ) {
                 Text(
                     stringResource(R.string.sorry),
@@ -153,13 +151,13 @@ fun HomeScreen(viewModel: HomeViewModel) {
                             viewModel.getCurrentWeather(
                                 it.lat,
                                 it.lon,
-                                LanguageHelper.getSystemLocale().language,
+                                LanguageHelper.getAppLocale(context).language,
                                 userTempUnitPref
                             )
                             viewModel.getWeeklyWeather(
                                 it.lat,
                                 it.lon,
-                                LanguageHelper.getSystemLocale().language,
+                                LanguageHelper.getAppLocale(context).language,
                                 userTempUnitPref
                             )
                         }
@@ -229,7 +227,8 @@ fun CurrentWeatherUI(
     place: String,
 
 ){
-    val formatter = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
+    val context = LocalContext.current
+    val formatter = SimpleDateFormat("EEE, d MMM", Locale(LanguageHelper.getAppLocale(context).language))
     val date = formatter.format(Date())
 
 
@@ -256,7 +255,7 @@ fun CurrentWeatherUI(
             modifier = Modifier.size(130.dp)
         )
 
-        currentWeatherData.placeInfo.sunrise?.let { formatUnixTimestamp(it) }?.let {
+        currentWeatherData.placeInfo.sunrise?.let { formatUnixTimestamp(it, context) }?.let {
             TemperatureDisplay(
                 temperature = currentWeatherData.mainWeatherData.temperature.roundToInt(),
                 feelsLikeTemp = currentWeatherData.mainWeatherData.feels_like.roundToInt(),
@@ -302,7 +301,7 @@ fun CurrentWeatherUI(
         Spacer(Modifier.height(10.dp))
         HourlyWeather(getHourlyForecast(weeklyWeatherData), userTempUnitPref)
         Spacer(Modifier.height(10.dp))
-        WeeklyWeather(getWeeklyForecast(weeklyWeatherData), userTempUnitPref)
+        WeeklyWeather(getWeeklyForecast(weeklyWeatherData, context), userTempUnitPref)
     }
 }
 
@@ -471,7 +470,7 @@ fun HourlyWeatherItem(weatherDTO: WeatherDTO, unit: String?){
         ) {
 
             Text(
-                text = formatUnixTimestamp(weatherDTO.dateTime.toLong()),
+                text = formatUnixTimestamp(weatherDTO.dateTime.toLong(), context),
                 color = Color.White,
                 fontSize = 15.sp,
                 style = MaterialTheme.typography.labelSmall
@@ -538,12 +537,12 @@ fun WeeklyWeather(weatherList: List<WeatherDTO>, unit: String?){
 fun WeeklyWeatherItem(weatherDTO: WeatherDTO, unit: String?){
 
     val context = LocalContext.current
-    val dayOfWeek = if (getDayOfWeek(weatherDTO).trim() == "Today" && LanguageHelper.getSystemLocale().language == "ar"){
+    val dayOfWeek = if (getDayOfWeek(weatherDTO, context).trim() == "Today" && LanguageHelper.getAppLocale(context).language == "ar"){
         "اليوم"
     }else {
-        getDayOfWeek(weatherDTO)
+        getDayOfWeek(weatherDTO, context)
     }
-    getDayOfWeek(weatherDTO)
+    getDayOfWeek(weatherDTO, context)
 
     val unitResId = when (unit) {
         "metric" -> R.string.celsius

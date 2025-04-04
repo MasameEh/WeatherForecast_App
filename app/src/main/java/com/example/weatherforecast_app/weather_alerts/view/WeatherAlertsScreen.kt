@@ -240,7 +240,7 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
                                 }
                                 Log.i(
                                     "WeatherAlerts",
-                                    "calendar: ${formatDateTimestamp(timestamp)}"
+                                    "calendar: ${formatDateTimestamp(timestamp,context)}"
                                 )
                                 viewModel.toggleTimePicker(false)
                                 return@TimePickerDialog
@@ -278,7 +278,6 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
                             )
 
                             viewModel.insertAlertToAlerts(alert)
-                            viewModel.scheduleWeatherAlert(context, timestamp, alert.id)
 
                             if(!viewModel.getUserNotificationStatus()){
                                 Toast.makeText(context, "Enable Notifications otherwise Alerts will not appear ", Toast.LENGTH_LONG).show()
@@ -286,7 +285,7 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
                                 viewModel.scheduleWeatherAlert(context, timestamp, alert.id)
                             }
 
-                            Log.i("WeatherAlerts", "calendar: ${formatDateTimestamp(timestamp)}")
+                            Log.i("WeatherAlerts", "calendar: ${formatDateTimestamp(timestamp, context)}")
                             viewModel.toggleTimePicker(false)
                             return@TimePickerDialog
                         }
@@ -408,7 +407,7 @@ fun AlertsList(
 @Composable
 fun AlertItem(viewModel: AlertsViewModel,
                         alert: AlertInfo, ){
-
+    val context = LocalContext.current
     val dismissState = rememberSwipeToDismissBoxState()
     SwipeToDismissBox(
         state = dismissState,
@@ -466,7 +465,7 @@ fun AlertItem(viewModel: AlertsViewModel,
                     tint = MediumBlue,
                 )
                 Text(
-                    text= formatDateTimestamp(alert.timestamp),
+                    text= formatDateTimestamp(alert.timestamp, context),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center,

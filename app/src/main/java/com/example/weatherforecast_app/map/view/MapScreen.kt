@@ -168,7 +168,7 @@ fun MapScreen(
 //                    ?: "Unknown City"
 //
 //                val country = address?.countryName ?: "Unknown Country"
-                viewModel.searchLocationByCoordinate(it.latitude, it.longitude, LanguageHelper.getSystemLocale().language)
+                viewModel.searchLocationByCoordinate(it.latitude, it.longitude, LanguageHelper.getAppLocale(context).language)
 
                 searchedLocation?.let { location ->
                     val formattedAddress = location.features.firstOrNull()?.properties?.let { it1 ->
