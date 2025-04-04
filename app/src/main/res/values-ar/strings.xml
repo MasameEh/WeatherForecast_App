@@ -38,4 +38,18 @@
     <string name="enable">تفعيل</string>
     <string name="disable">تعطيل</string>
     <string name="weather_alerts">تنبيهات الطقس</string>
+    <string name="future_time">من فضلك ادخل ميعاد في السمتقبل</string>
+    <string name="added">اضيفت بنجاح</string>
+    <string name="deleted">تم الحذف</string>
+    <string name="nothing_added">لم يتم اضافة شئ بعد</string>
+    <string name="search_location">ابحث عن موقع</string>
+    <string name="no_internet">لا يوجد اتصال بالانترنت</string>
+    <string name="enable_location">من فضلك فعل خدمات تحديد الموقع</string>
+    <string name="enable_for_latest">يرجى تفعيل خدمات الموقع حتى تتمكن من رؤية أحدث حالة للطقس</string>
+    <string name="location_denied">تم رفض أذونات الموقع</string>
+    <string name="alerts_deined">تم رفض الإذن! لن تظهر التنبيهات</string>
+    <string name="location_required">الموقع مطلوب</string>
+    <string name="cancel">تعطيل</string>
+    <string name="enable_notifications">قم بتمكين الإشعارات، وإلا فلن تظهر التنبيهات</string>
+    <string name="ok">حسنا</string>
 </resources>

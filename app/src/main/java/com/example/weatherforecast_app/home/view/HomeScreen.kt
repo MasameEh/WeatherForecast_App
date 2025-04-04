@@ -63,6 +63,8 @@ import com.example.weatherforecast_app.utils.metersPerSecondToMilesPerHour
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.roundToInt
 
 private const val TAG = "HomeScreen"
@@ -246,6 +248,7 @@ fun CurrentWeatherUI(
     val country = if (addressParts.isNotEmpty()) addressParts.last() else ""
 
     Log.i(TAG, "CurrentWeatherUI: $city country: $country")
+
     Column(
         modifier = Modifier.padding(start = 18.dp, top = 20.dp, end = 18.dp)
     ) {
@@ -594,8 +597,8 @@ fun WeeklyWeatherItem(weatherDTO: WeatherDTO, unit: String?){
                 ) {
                 Text(
 
-                    text = "${formatNumberToLocale(weatherDTO.mainWeatherData.temp_max.roundToInt(), context)} " +
-                            "/ ${formatNumberToLocale(weatherDTO.mainWeatherData.temp_min.roundToInt(), context)}",
+                    text = "${formatNumberToLocale(ceil(weatherDTO.mainWeatherData.temp_max).toInt(), context)} " +
+                            "/ ${formatNumberToLocale(floor(weatherDTO.mainWeatherData.temp_min).toInt(), context)}",
                     color = MediumBlue,
                     style = MaterialTheme.typography.labelMedium
                 )

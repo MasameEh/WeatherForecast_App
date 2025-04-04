@@ -71,7 +71,7 @@ class LocationRepositoryTest {
     }
 
     @Test
-    fun deleteLocation_locationInfo_returnsFive() = runTest{
+    fun deleteLocation_locationInfo_returnsFive() = runTest {
 
         // Given (arrange)
         val location = LocationInfo("Egypt", "Zagazig", 30.112, 31.44)

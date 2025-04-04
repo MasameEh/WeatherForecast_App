@@ -5,7 +5,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -40,8 +38,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.weatherforecast_app.R
 import com.example.weatherforecast_app.data.model.LocationInfo
 import com.example.weatherforecast_app.map.viewmodel.MapViewModel
 import com.example.weatherforecast_app.utils.LanguageHelper
@@ -126,7 +126,7 @@ fun MapScreen(
                 query = it
                 viewModel.searchLocationByName(it)
             },
-            label = { Text("Search Location") },
+            label = { Text(stringResource(R.string.search_location)) },
             modifier = Modifier
                 .fillMaxWidth(),
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },

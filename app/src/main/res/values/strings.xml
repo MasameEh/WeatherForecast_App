@@ -37,4 +37,18 @@
     <string name="enable">Enable</string>
     <string name="disable">Disable</string>
     <string name="weather_alerts">Weather Alerts</string>
+    <string name="future_time">Please enter a future time</string>
+    <string name="added">Added successfully</string>
+    <string name="deleted">Deleted successfully</string>
+    <string name="nothing_added">Nothing added yet</string>
+    <string name="search_location">Search Location</string>
+    <string name="no_internet">No internet connection</string>
+    <string name="enable_location">Please enable location services</string>
+    <string name="enable_for_latest">Please enable location services so you see the latest weather status!</string>
+    <string name="location_denied">Location permissions denied</string>
+    <string name="alerts_deined">Permission denied! Alerts will not appear</string>
+    <string name="location_required">Location Required</string>
+    <string name="cancel">CANCEL</string>
+    <string name="enable_notifications">Enable Notifications otherwise Alerts will not appear</string>
+    <string name="ok">Ok</string>
 </resources>

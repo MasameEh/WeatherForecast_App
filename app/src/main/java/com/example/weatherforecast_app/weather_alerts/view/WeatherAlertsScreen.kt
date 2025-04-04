@@ -6,14 +6,17 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -57,6 +60,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -66,7 +70,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherforecast_app.R
 import com.example.weatherforecast_app.data.model.AlertInfo
-import com.example.weatherforecast_app.data.repo.user_pref.UserPreferenceRepositoryImp
 import com.example.weatherforecast_app.ui.theme.MediumBlue
 import com.example.weatherforecast_app.ui.theme.gradientBackground
 import com.example.weatherforecast_app.ui.theme.onSecondaryColor
@@ -212,7 +215,7 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
                                 ) {
                                     Toast.makeText(
                                         context,
-                                        "Please select a future time",
+                                        context.getString(R.string.future_time),
                                         Toast.LENGTH_SHORT
                                     ).show()
                                     return@TimePickerDialog
@@ -235,7 +238,7 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
                                 viewModel.insertAlertToAlerts(alert)
 
                                 if(!viewModel.getUserNotificationStatus()){
-                                    Toast.makeText(context, "Enable Notifications otherwise Alerts will not appear ", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, context.getString(R.string.enable_notifications), Toast.LENGTH_LONG).show()
                                 }else{
                                     viewModel.scheduleWeatherAlert(context, timestamp, alert.id)
                                 }
@@ -258,7 +261,7 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
                             ) {
                                 Toast.makeText(
                                     context,
-                                    "Please select a future time",
+                                    context.getString(R.string.future_time),
                                     Toast.LENGTH_SHORT
                                 ).show()
                                 return@TimePickerDialog
@@ -281,7 +284,7 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
                             viewModel.insertAlertToAlerts(alert)
 
                             if(!viewModel.getUserNotificationStatus()){
-                                Toast.makeText(context, "Enable Notifications otherwise Alerts will not appear ", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, context.getString(R.string.enable_notifications), Toast.LENGTH_LONG).show()
                             }else{
                                 viewModel.scheduleWeatherAlert(context, timestamp, alert.id)
                             }
@@ -323,7 +326,27 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
                 }
                 is ResponseState.Success -> {
                     val successAlertsData = (alertsState as ResponseState.Success).data as List<AlertInfo>
-                    AlertsList(viewModel, successAlertsData)
+                    if(successAlertsData.isEmpty()){
+                        Column(
+                            Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.bookmark),
+                                contentDescription = stringResource(R.string.nothing_added)
+                            )
+                            Spacer(Modifier.height(15.dp))
+                            Text(
+                                text = "Nothing added yet",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = Color.White
+                            )
+                        }
+                    }else{
+                        AlertsList(viewModel, successAlertsData)
+                    }
+
                 }
             }
 
@@ -350,7 +373,7 @@ fun TimePickerDialog(
                     disabledContainerColor = Color.White,
                 ),
                 onClick = { onDismiss() }) {
-                Text("CANCEL")
+                Text(stringResource(R.string.cancel))
             }
         },
         confirmButton = {
@@ -362,7 +385,7 @@ fun TimePickerDialog(
                     disabledContainerColor = Color.White,
                 ),
                 onClick = { onConfirm() }) {
-                Text("OK")
+                Text(stringResource(R.string.ok))
             }
         },
         text = { content() }
@@ -490,7 +513,6 @@ fun AlertItem(viewModel: AlertsViewModel,
                     textAlign = TextAlign.Center,
                     color = MediumBlue,
                     modifier = Modifier.weight(2f)
-                    //text= "$city, $country"
                 )
             }
 

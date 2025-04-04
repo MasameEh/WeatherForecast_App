@@ -5,14 +5,12 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 
 import androidx.activity.ComponentActivity
@@ -21,29 +19,25 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+
 import androidx.compose.runtime.getValue
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
@@ -89,7 +83,6 @@ import com.example.weatherforecast_app.settings.viewmodel.SettingsViewModel
 import com.example.weatherforecast_app.settings.viewmodel.SettingsViewModelFactory
 import com.example.weatherforecast_app.utils.Constants.LOCATION_REQUEST_CODE
 import com.example.weatherforecast_app.utils.Constants.REQUEST_CODE_NOTIFICATIONS
-import com.example.weatherforecast_app.utils.LanguageHelper
 import com.example.weatherforecast_app.utils.LanguageHelper.setAppLocale
 import com.example.weatherforecast_app.weather_alerts.view.WeatherAlertsScreen
 import com.example.weatherforecast_app.weather_alerts.viewmodel.AlertsViewModel
@@ -198,7 +191,7 @@ class MainActivity : ComponentActivity() {
 
             } else {
                 Log.i(TAG, "onStart: enable location services ")
-                Toast.makeText(this, "Please enable location services", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.enable_location), Toast.LENGTH_SHORT).show()
                 showEnableLocationDialog()
             }
         } else {
@@ -237,20 +230,21 @@ class MainActivity : ComponentActivity() {
                     }
                 }else{
                     Log.i(TAG, "onStart: enable location services ")
-                    Toast.makeText(this, "Please enable location services so you see the latest weather status!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, getString(R.string.enable_for_latest), Toast.LENGTH_LONG).show()
                     enableLocationServices()
                 }
             }else{
                 // Permissions denied
-                Toast.makeText(this, "Location permissions denied", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, getString(R.string.location_denied), Toast.LENGTH_LONG).show()
             }
         }
 
         if (requestCode == REQUEST_CODE_NOTIFICATIONS) {
-            Toast.makeText(this, "Permission denied! Alerts will not appear", Toast.LENGTH_LONG).show()
+            if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_DENIED){
+                Toast.makeText(this, getString(R.string.alerts_deined), Toast.LENGTH_LONG).show()
+            }
         }
     }
-
 
 
     @Composable
@@ -368,7 +362,6 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun MainScreen(modifier: Modifier = Modifier) {
         val isConnected by mainViewModel.isConnected.collectAsStateWithLifecycle()
@@ -389,7 +382,7 @@ class MainActivity : ComponentActivity() {
         LaunchedEffect(isConnected) {
             if(!isConnected){
                 snackBarHostState.showSnackbar(
-                    message = "No Internet Connection",
+                    message = getString(R.string.no_internet),
                     duration = SnackbarDuration.Indefinite,
                 )
             }
@@ -432,25 +425,16 @@ class MainActivity : ComponentActivity() {
 
     private fun showEnableLocationDialog() {
         AlertDialog.Builder(this)
-            .setTitle("Location Required")
-            .setMessage("Please enable location services to get weather updates.")
-            .setPositiveButton("Enable") { _, _ -> enableLocationServices() }
-            .setNegativeButton("Cancel", null)
+            .setTitle(getString(R.string.location_required))
+            .setMessage(getString(R.string.enable_for_latest))
+            .setPositiveButton(getString(R.string.enable)) { _, _ -> enableLocationServices() }
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
-//    private fun showOpenMapDialog() {
-//        AlertDialog.Builder(this)
-//            .setTitle("Location Required")
-//            .setMessage("Please select your location on map to get weather updates.")
-//            .setPositiveButton("Open Map") { _, _ -> navHostController.navigate(ScreensRoute.Map) }
-//            .setNegativeButton("Cancel", null)
-//            .show()
-//    }
-
     private fun showSettingsDialog() {
         AlertDialog.Builder(this)
-            .setTitle("Permissions Required")
+            .setTitle(getString(R.string.location_required))
             .setMessage("You have denied location permissions. Please enable them in app settings.")
             .setPositiveButton("Settings") { _, _ ->
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)

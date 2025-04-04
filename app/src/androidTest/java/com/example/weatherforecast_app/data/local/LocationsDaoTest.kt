@@ -1,11 +1,14 @@
 package com.example.weatherforecast_app.data.local
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.example.weatherforecast_app.data.model.LocationInfo
+import junit.framework.TestCase.fail
 import kotlinx.coroutines.test.runTest
+import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThan

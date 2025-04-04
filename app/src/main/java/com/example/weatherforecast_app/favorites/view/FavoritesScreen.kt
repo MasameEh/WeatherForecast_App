@@ -9,11 +9,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 
 import androidx.compose.foundation.lazy.LazyColumn
@@ -43,7 +44,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -60,7 +60,6 @@ import com.example.weatherforecast_app.ui.theme.gradientBackground
 import com.example.weatherforecast_app.ui.theme.onSecondaryColor
 import com.example.weatherforecast_app.utils.LanguageHelper
 import com.example.weatherforecast_app.utils.ResponseState
-import java.util.Locale
 
 private const val TAG = "FavoritesScreen"
 @OptIn(ExperimentalMaterial3Api::class)
@@ -126,8 +125,28 @@ fun FavoritesScreen(viewModel: FavoriteViewModel,
                         .gradientBackground()
                         .statusBarsPadding()
                         .navigationBarsPadding()
+                    ,
                 ) {
-                    FavoriteLocations(viewModel, successLocationsData, navigateToFavoriteDetails)
+                    if(successLocationsData.isEmpty()){
+                       Column(
+                           Modifier.fillMaxSize(),
+                           verticalArrangement = Arrangement.Center,
+                           horizontalAlignment = Alignment.CenterHorizontally
+                       ) {
+                           Image(
+                               painter = painterResource(R.drawable.bookmark),
+                               contentDescription = stringResource(R.string.nothing_added)
+                           )
+                           Spacer(Modifier.height(15.dp))
+                           Text(
+                               text = stringResource(R.string.nothing_added),
+                               style = MaterialTheme.typography.titleLarge,
+                               color = Color.White
+                           )
+                       }
+                    }else{
+                        FavoriteLocations(viewModel, successLocationsData, navigateToFavoriteDetails)
+                    }
                 }
             }
         }
@@ -172,87 +191,93 @@ fun FavoriteLocationItem(viewModel: FavoriteViewModel,
 
     Log.i(TAG, "isArabic: $isArabic")
     Log.i(TAG, "isEnglish: $isEnglish")
-   SwipeToDismissBox(
-       state = dismissState,
-       enableDismissFromStartToEnd = enableDismissFromStartToEnd,
-       enableDismissFromEndToStart = enableDismissFromEndToStart,
-       backgroundContent = {
-           Box(
-               modifier = Modifier.fillMaxSize(),
-               contentAlignment = Alignment.CenterEnd
-           ){
-               Icon(
-                   imageVector = Icons.Default.Delete,
-                   contentDescription = "delete Icon",
-                   tint = Color.Red,
-               )
-           }
-       },
-   ){
-       when(dismissState.currentValue){
-            SwipeToDismissBoxValue.StartToEnd ->{
+
+    SwipeToDismissBox(
+        state = dismissState,
+        enableDismissFromStartToEnd = enableDismissFromStartToEnd,
+        enableDismissFromEndToStart = enableDismissFromEndToStart,
+        backgroundContent = {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "delete Icon",
+                    tint = Color.Red,
+                )
+            }
+        },
+    ) {
+        when (dismissState.currentValue) {
+            SwipeToDismissBoxValue.StartToEnd -> {
                 if (isArabic) {
                     viewModel.deleteLocationFromFav(location)
                 }
 
             }
-           SwipeToDismissBoxValue.EndToStart -> {
-               Log.i(TAG, "FavoriteLocationItem: ")
-               if (isEnglish) {
-                   viewModel.deleteLocationFromFav(location)
-               }
 
-           }
-           SwipeToDismissBoxValue.Settled -> {
+            SwipeToDismissBoxValue.EndToStart -> {
+                Log.i(TAG, "FavoriteLocationItem: ")
+                if (isEnglish) {
+                    viewModel.deleteLocationFromFav(location)
+                }
 
-           }
-       }
-       ElevatedCard(
-           elevation = CardDefaults.cardElevation(
-               defaultElevation = 8.dp
-           ),
-           colors = CardDefaults.cardColors(
-               containerColor = onSecondaryColor,
+            }
 
-               ),
-           modifier = Modifier
-               .fillMaxWidth()
-               .border(2.dp, onSecondaryColor, shape = RoundedCornerShape(15.dp))
-               .clickable {
-                   navigateToFavoriteDetails.invoke(
-                       location.latitude,
-                       location.longitude,
-                       location.city
-                   )
-               }
-       )  {
-           Row(
-               modifier = Modifier
-                   .fillMaxWidth()
-                   .padding(16.dp),
-               horizontalArrangement = Arrangement.spacedBy(2.dp, alignment = Alignment.CenterHorizontally),
-               verticalAlignment = Alignment.CenterVertically
-           ){
-               Icon(
-                   imageVector = Icons.Default.LocationOn,
-                   contentDescription = "show details",
-                   tint = MediumBlue,
-               )
-               Text(
-                   text= location.city,
-                   style = MaterialTheme.typography.titleMedium,
-                   fontWeight = FontWeight.Normal,
-                   textAlign = TextAlign.Center,
-                   color = MediumBlue,
-                   modifier = Modifier.weight(2f)
-               )
-               Icon(
-                   imageVector = Icons.Default.KeyboardArrowRight,
-                   contentDescription = "show details",
-                   tint = MediumBlue,
-               )
-           }
+            SwipeToDismissBoxValue.Settled -> {
 
-       }
-   }
+            }
+        }
+        ElevatedCard(
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 8.dp
+            ),
+            colors = CardDefaults.cardColors(
+                containerColor = onSecondaryColor,
+
+                ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(2.dp, onSecondaryColor, shape = RoundedCornerShape(15.dp))
+                .clickable {
+                    navigateToFavoriteDetails.invoke(
+                        location.latitude,
+                        location.longitude,
+                        location.city
+                    )
+                }
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(
+                    2.dp,
+                    alignment = Alignment.CenterHorizontally
+                ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = "show details",
+                    tint = MediumBlue,
+                )
+                Text(
+                    text = location.city,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Normal,
+                    textAlign = TextAlign.Center,
+                    color = MediumBlue,
+                    modifier = Modifier.weight(2f)
+                )
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowRight,
+                    contentDescription = "show details",
+                    tint = MediumBlue,
+                )
+            }
+
+        }
+    }
 }
