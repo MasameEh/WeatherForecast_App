@@ -31,7 +31,6 @@ class FavoriteViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val result = repo.getAllFavLocations()
             result.catch { ex ->
-                mutableMsg.emit("Error!! Couldn't be retrieved, try again")
                 _mutableFavoritesList.value = ResponseState.Failure(ex)
             }.collect{
                 _mutableFavoritesList.value = ResponseState.Success(it)
@@ -42,17 +41,15 @@ class FavoriteViewModel(
 
     fun deleteLocationFromFav(location : LocationInfo){
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO){
             try{
                 val result  = repo.deleteLocation(location)
                 if(result > 0){
                     mutableMsg.emit("Deleted from Favorite Locations successfully")
                 }else{
                     mutableMsg.emit("Error!! Couldn't be deleted, try again")
-                    Log.i(TAG, "deleteLocationFromFav: res = $result")
                 }
             }catch (ex: Exception){
-                Log.i(TAG, "deleteLocationFromFav: ex = $ex")
                 mutableMsg.emit("Error!! Couldn't be deleted, try again")
             }
 

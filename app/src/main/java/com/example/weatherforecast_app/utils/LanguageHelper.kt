@@ -40,7 +40,7 @@ object LanguageHelper {
                 setLocale(locale)
                 setLayoutDirection(locale)
             }
-
+            context.createConfigurationContext(config)
             context.resources.updateConfiguration(config, context.resources.displayMetrics)
 
             if (context is Activity) {
@@ -48,20 +48,6 @@ object LanguageHelper {
                 context.recreate() // Only for older versions (pre-Android 13)
             }
         }
-    }
-
-    fun wrapContext(context: Context, language: String?): Context {
-        val locale = when (language) {
-            "Arabic" -> Locale("ar")
-            "English" -> Locale.ENGLISH
-            else -> getSystemLocale()
-        }
-
-        val config = context.resources.configuration
-        config.setLocale(locale)
-        config.setLayoutDirection(locale)
-
-        return context.createConfigurationContext(config)
     }
 
      fun getSystemLocale(): Locale {

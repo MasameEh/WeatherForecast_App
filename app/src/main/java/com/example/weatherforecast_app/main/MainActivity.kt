@@ -5,12 +5,14 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 
 import androidx.activity.ComponentActivity
@@ -144,6 +146,8 @@ class MainActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
             userLangPref = settingsViewModel.getLanguagePref() ?: "System Default"
             LanguageHelper.setAppLocale(this, userLangPref)
+            if (userLangPref == "ar") View.LAYOUT_DIRECTION_RTL
+            else View.LAYOUT_DIRECTION_LTR
         }
 
         setContent {
@@ -156,6 +160,13 @@ class MainActivity : ComponentActivity() {
 
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        window.decorView.layoutDirection =
+            if (userLangPref == "ar") View.LAYOUT_DIRECTION_RTL
+            else View.LAYOUT_DIRECTION_LTR
+
+    }
     override fun onStart() {
         super.onStart()
         Log.i(TAG, "onStart: ")
@@ -268,7 +279,7 @@ class MainActivity : ComponentActivity() {
                             AlertRepositoryImp.getInstance(
                                 AlertLocalDataSourceImp(
                                     dao = AppDatabase.getInstance(this@MainActivity)
-                                        .getLocationsDao()
+                                        .getAlertsDao()
                                 )
                             ),
                             UserPreferenceRepositoryImp.getInstance(

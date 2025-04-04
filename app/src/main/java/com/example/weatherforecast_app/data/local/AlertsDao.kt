@@ -6,20 +6,10 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.weatherforecast_app.data.model.AlertInfo
-import com.example.weatherforecast_app.data.model.LocationInfo
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface AppDao {
-
-    @Query("SELECT * FROM location")
-    fun getAllFavLocations() : Flow<List<LocationInfo>>
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertLocation(location: LocationInfo) : Long
-
-    @Delete
-    suspend fun deleteLocation(location:LocationInfo): Int
+interface AlertsDao {
 
     @Query("SELECT * FROM alert")
     fun getAllAlerts() : Flow<List<AlertInfo>>
@@ -28,6 +18,5 @@ interface AppDao {
     suspend fun insertAlert(alert: AlertInfo) : Long
 
     @Delete
-    suspend fun deleteAlert(alert:AlertInfo): Int
-
+    suspend fun deleteAlert(alert: AlertInfo): Int
 }

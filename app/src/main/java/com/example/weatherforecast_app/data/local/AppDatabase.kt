@@ -10,13 +10,15 @@ import com.example.weatherforecast_app.data.model.LocationInfo
 
 @Database(entities = [LocationInfo::class, AlertInfo::class], version = 2)
 abstract class AppDatabase : RoomDatabase(){
-    abstract fun getLocationsDao(): AppDao
+
+    abstract fun getLocationsDao(): LocationsDao
+    abstract fun getAlertsDao(): AlertsDao
 
     companion object{
         @Volatile
         private var instance: AppDatabase?  = null
 
-//        fun getInstance(context: Context): LocationsDatabase{
+//        fun getInstance(context: Context): AppDatabase{
 //            return instance ?: synchronized(this){
 //                val inst = Room.databaseBuilder(context, LocationsDatabase::class.java, "roomdb").build()
 //                instance = inst // Stores the created instance for future calls

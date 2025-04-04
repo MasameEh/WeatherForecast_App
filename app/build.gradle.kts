@@ -108,5 +108,22 @@ dependencies {
     // Data store
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
+    // Dependencies for local unit tests
+    testImplementation ("junit:junit:4.13.2")
+    androidTestImplementation ("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation ("androidx.test.espresso:espresso-core:3.6.1")
 
+    //MockK
+    testImplementation ("io.mockk:mockk-android:1.13.17")
+    testImplementation ("io.mockk:mockk-agent:1.13.17")
+
+    //kotlinx-coroutines
+    val coroutinesVersion = "1.10.1"
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
+    testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
+    androidTestImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
+
+    // InstantTaskExecutorRule
+    testImplementation ("androidx.arch.core:core-testing:2.1.0")
+    androidTestImplementation ("androidx.arch.core:core-testing:2.1.0")
 }
