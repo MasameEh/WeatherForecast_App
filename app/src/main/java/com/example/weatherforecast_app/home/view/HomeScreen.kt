@@ -237,12 +237,12 @@ fun CurrentWeatherUI(
 
 ){
     val context = LocalContext.current
-    val formatter = SimpleDateFormat("EEE, d MMM", Locale(LanguageHelper.getAppLocale(context).language))
+    val langCode = if(LanguageHelper.getAppLocale(context).language.isBlank()) "en" else LanguageHelper.getAppLocale(context).language
+    val formatter = SimpleDateFormat("EEE, d MMM", Locale(langCode))
     val date = formatter.format(Date())
 
-
     val addressParts = place.split(",").map { it.trim() }
-    Log.i(TAG, "CurrentWeatherUI: $addressParts")
+
     val city =
         if (addressParts.isNotEmpty() && addressParts.size > 2) addressParts[addressParts.size - 2] + ", " + addressParts[addressParts.size - 3]
         else if (addressParts.size == 2) addressParts[0]
