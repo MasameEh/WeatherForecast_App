@@ -1,20 +1,18 @@
 package com.example.weatherforecast_app.main;
 
-import android.app.Application
+
 import android.content.Context
 import android.location.Location
 import android.net.ConnectivityManager
 import android.net.Network
+import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.weatherforecast_app.data.repo.location_repo.ILocationRepository;
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 
@@ -24,7 +22,6 @@ class MainViewModel(private val repo: ILocationRepository) : ViewModel(){
 
     private val _isConnected = MutableStateFlow(true)
     val isConnected: StateFlow<Boolean> = _isConnected.asStateFlow()
-
 
      fun checkNetworkStatus(context: Context) {
          Log.i(TAG, "checkNetworkStatus: ")
@@ -41,7 +38,14 @@ class MainViewModel(private val repo: ILocationRepository) : ViewModel(){
                 Log.i(TAG, "Internet Available")
                 _isConnected.tryEmit(true)
             }
-        
+
+             // for active internet
+             override fun onCapabilitiesChanged(
+                 network: Network,
+                 networkCapabilities: NetworkCapabilities
+             ) {
+
+             }
             override fun onLost(network: Network) {
                 Log.i(TAG, "Internet Lost")
                 _isConnected.tryEmit(false)

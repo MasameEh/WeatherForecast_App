@@ -19,7 +19,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
@@ -263,7 +265,7 @@ fun CurrentWeatherUI(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .padding(start = 18.dp, top = 10.dp, end = 18.dp)
-            .fillMaxWidth()
+            .fillMaxWidth().verticalScroll(rememberScrollState())
     ) {
         Image(
             painter = painterResource(getWeatherIcon(currentWeatherData.weather[0].icon)),
@@ -520,7 +522,9 @@ fun HourlyWeatherItem(weatherDTO: WeatherDTO, unit: String?){
 @Composable
 fun WeeklyWeather(weatherList: List<WeatherDTO>, unit: String?){
     Log.i(TAG, "WeeklyWeather: ${weatherList.size}")
+
     LazyColumn(
+        Modifier.height(420.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(bottom = 18.dp),
 

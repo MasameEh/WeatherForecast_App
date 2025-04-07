@@ -183,7 +183,7 @@ fun FavoriteLocationItem(viewModel: FavoriteViewModel,
 
     val locale = LanguageHelper.getAppLocale(context)
     val isArabic = locale.language == "ar"
-    val isEnglish = locale.language == "en"
+    val isEnglish = locale.language == "en" || locale.language == ""
 
     val enableDismissFromStartToEnd = isArabic
 

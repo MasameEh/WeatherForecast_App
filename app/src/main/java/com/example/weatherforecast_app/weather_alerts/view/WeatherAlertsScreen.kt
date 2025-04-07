@@ -338,7 +338,7 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
                             )
                             Spacer(Modifier.height(15.dp))
                             Text(
-                                text = "Nothing added yet",
+                                text = stringResource(R.string.nothing_added),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = Color.White
                             )
@@ -436,7 +436,7 @@ fun AlertItem(viewModel: AlertsViewModel,
 
     val locale = LanguageHelper.getAppLocale(context)
     val isArabic = locale.language == "ar"
-    val isEnglish = locale.language == "en"
+    val isEnglish = locale.language == "en" || locale.language == ""
 
     val enableDismissFromStartToEnd = isArabic
 
