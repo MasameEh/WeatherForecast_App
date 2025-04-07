@@ -26,7 +26,7 @@ The app also includes various settings like language change, unit preferences, n
 - 🔔 **Weather Alerts via Notifications**
 - ⚙️ **App Settings:**
   - Change language (English / Arabic)
-  - Switch temperature (Celsius/Fahrenheit) & wind units
+  - Switch temperature (Celsius / Fahrenheit / Kelvin) & wind units
   - Enable/Disable weather alert notifications
   - Choose your current location from a map
 
