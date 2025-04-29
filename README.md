@@ -6,7 +6,11 @@ Users can view current weather based on their location and manage a list of favo
 The app also includes various settings like language change, unit preferences, notification toggle, and selecting your location from a map.
 
 ---
+## 📽️ Demo Video
 
+🎥 Watch demo [here](https://drive.google.com/drive/u/0/folders/1FISwl6FTatCYS2YIYUgTUYrsTceFjd2d).
+
+---
 ## Tech Stack
 
 - **Jetpack Compose** – Modern Android UI toolkit
