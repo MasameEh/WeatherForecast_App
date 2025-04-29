@@ -8,7 +8,7 @@ The app also includes various settings like language change, unit preferences, n
 ---
 ## 📽️ Demo Video
 
-🎥 Watch demo [here](https://drive.google.com/drive/u/0/folders/1FISwl6FTatCYS2YIYUgTUYrsTceFjd2d).
+🎥 Watch demo [here](https://drive.google.com/file/d/1-hNpz8ahLSGfazFppMPeoERhW1ccujZV/view?usp=sharing).
 
 ---
 ## Tech Stack
