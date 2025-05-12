@@ -38,7 +38,7 @@ The app also includes various settings like language change, unit preferences, n
 
 ## 📷 Screenshots
 
-
+<img src="https://github.com/user-attachments/assets/31b3b760-123c-41e8-8d43-c0a06c4bcece" alt="screens" width="1000" height="1000" />
 
 ---
 
