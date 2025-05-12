@@ -128,4 +128,7 @@ dependencies {
     androidTestImplementation ("androidx.arch.core:core-testing:2.1.0")
 
     testImplementation("app.cash.turbine:turbine:1.2.0")
+
+    implementation ("com.google.dagger:hilt-android:2.51.1")
+    ksp ("com.google.dagger:hilt-android-compiler:2.51.1")
 }
