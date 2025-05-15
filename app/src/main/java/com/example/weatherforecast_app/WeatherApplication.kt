@@ -1,10 +1,7 @@
 package com.example.weatherforecast_app
 
 import android.app.Application
-import android.content.Context
-import android.util.Log
-import com.example.weatherforecast_app.utils.LanguageHelper.setAppLocale
+import dagger.hilt.android.HiltAndroidApp
 
-class WeatherApplication : Application(){
-
-}
+@HiltAndroidApp
+class WeatherApplication : Application()

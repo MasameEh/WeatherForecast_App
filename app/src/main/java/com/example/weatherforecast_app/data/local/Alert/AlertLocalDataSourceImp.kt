@@ -4,8 +4,9 @@ import com.example.weatherforecast_app.data.local.AlertsDao
 import com.example.weatherforecast_app.data.local.LocationsDao
 import com.example.weatherforecast_app.data.model.AlertInfo
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class AlertLocalDataSourceImp(private val dao: AlertsDao): IAlertLocalDataSource {
+class AlertLocalDataSourceImp @Inject constructor(private val dao: AlertsDao): IAlertLocalDataSource {
 
     override fun getAllAlerts(): Flow<List<AlertInfo>> {
         return dao.getAllAlerts()

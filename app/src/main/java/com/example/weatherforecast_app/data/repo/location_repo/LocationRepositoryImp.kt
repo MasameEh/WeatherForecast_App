@@ -14,8 +14,9 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class LocationRepositoryImp private constructor(
+class LocationRepositoryImp @Inject constructor(
     private val fusedLocationClient: FusedLocationProviderClient,
     private val localDataSource: ILocationLocalDataSource,
     private val remoteDataSource: ILocationRemoteDataSource,

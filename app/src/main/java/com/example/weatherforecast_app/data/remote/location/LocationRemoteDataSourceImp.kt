@@ -5,8 +5,9 @@ import com.example.weatherforecast_app.data.model.LocationResponse
 import com.example.weatherforecast_app.data.remote.RetrofitHelper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
-class LocationRemoteDataSourceImp : ILocationRemoteDataSource {
+class LocationRemoteDataSourceImp @Inject constructor() : ILocationRemoteDataSource {
 
     override fun searchLocationByName(query: String): Flow<List<LocationInfo>> {
         return flow {

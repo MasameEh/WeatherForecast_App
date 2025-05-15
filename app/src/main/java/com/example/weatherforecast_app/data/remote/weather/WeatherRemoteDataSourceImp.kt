@@ -5,9 +5,10 @@ import com.example.weatherforecast_app.data.model.WeatherResponse
 import com.example.weatherforecast_app.data.remote.RetrofitHelper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
 
-class WeatherRemoteDataSourceImp : IWeatherRemoteDataSource {
+class WeatherRemoteDataSourceImp @Inject constructor(): IWeatherRemoteDataSource {
 
     override fun getWeatherForFiveDays(
         latitude: Double,

@@ -3,8 +3,9 @@ package com.example.weatherforecast_app.data.repo.alert_repo
 import com.example.weatherforecast_app.data.local.Alert.IAlertLocalDataSource
 import com.example.weatherforecast_app.data.model.AlertInfo
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class AlertRepositoryImp private constructor(
+class AlertRepositoryImp @Inject constructor(
     private val localDataSource: IAlertLocalDataSource
 ) : IAlertRepository {
 

@@ -5,6 +5,7 @@ plugins {
     kotlin("plugin.serialization") version "2.1.10"
     id("com.google.devtools.ksp")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("com.google.dagger.hilt.android")
 }
 secrets {
     // To add your Maps API key to this project:
@@ -82,9 +83,9 @@ dependencies {
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
 
     //Room
-    implementation ("androidx.room:room-runtime:2.6.1")
-    implementation ("androidx.room:room-ktx:2.6.1")
-    ksp ("androidx.room:room-compiler:2.6.1")
+    implementation ("androidx.room:room-runtime:2.7.1")
+    implementation ("androidx.room:room-ktx:2.7.1")
+    ksp("androidx.room:room-compiler:2.7.1")
 
     //Scoped API
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.7")
@@ -105,8 +106,6 @@ dependencies {
     implementation ("com.google.maps.android:maps-compose:2.11.2")
     implementation ("com.google.android.gms:play-services-maps:19.1.0")
 
-    // Data store
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // Dependencies for local unit tests
     testImplementation ("junit:junit:4.13.2")
@@ -129,6 +128,6 @@ dependencies {
 
     testImplementation("app.cash.turbine:turbine:1.2.0")
 
-    implementation ("com.google.dagger:hilt-android:2.51.1")
-    ksp ("com.google.dagger:hilt-android-compiler:2.51.1")
+    implementation("com.google.dagger:hilt-android:2.56.2")
+    ksp("com.google.dagger:hilt-android-compiler:2.56.2")
 }

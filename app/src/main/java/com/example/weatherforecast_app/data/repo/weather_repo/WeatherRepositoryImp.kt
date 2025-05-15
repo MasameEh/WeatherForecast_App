@@ -4,8 +4,9 @@ import com.example.weatherforecast_app.data.model.WeatherDTO
 import com.example.weatherforecast_app.data.model.WeatherResponse
 import com.example.weatherforecast_app.data.remote.weather.IWeatherRemoteDataSource
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class WeatherRepositoryImp private constructor(
+class WeatherRepositoryImp @Inject constructor(
     private val remoteDataSource: IWeatherRemoteDataSource
 ) : IWeatherRepository {
 
