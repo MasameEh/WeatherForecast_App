@@ -89,7 +89,7 @@ class HomeViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val result = locationRepo.searchLocationByCoordinate(latitude, longitude,language)
             result.catch { e->
-                Log.i(TAG, "err: ${e.message}")
+                Log.i(TAG, "searchLocationByCoordinate: ${e.message}")
             }.collect{
                 _searchedLocation.value = it
 

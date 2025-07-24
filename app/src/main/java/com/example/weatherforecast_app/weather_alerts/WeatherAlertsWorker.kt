@@ -52,8 +52,6 @@ class WeatherAlertsWorker(
             LocationRemoteDataSourceImp()
         )
 
-
-
         return suspendCancellableCoroutine { continuation ->
             locationRepo.getFreshLocation { location ->
                 if (location != null) {
