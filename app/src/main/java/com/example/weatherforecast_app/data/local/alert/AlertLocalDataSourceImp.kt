@@ -1,7 +1,6 @@
-package com.example.weatherforecast_app.data.local.Alert
+package com.example.weatherforecast_app.data.local.alert
 
 import com.example.weatherforecast_app.data.local.AlertsDao
-import com.example.weatherforecast_app.data.local.LocationsDao
 import com.example.weatherforecast_app.data.model.AlertInfo
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

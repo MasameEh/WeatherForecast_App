@@ -1,7 +1,7 @@
 package com.example.weatherforecast_app.di
 
-import com.example.weatherforecast_app.data.local.Alert.AlertLocalDataSourceImp
-import com.example.weatherforecast_app.data.local.Alert.IAlertLocalDataSource
+import com.example.weatherforecast_app.data.local.alert.AlertLocalDataSourceImp
+import com.example.weatherforecast_app.data.local.alert.IAlertLocalDataSource
 import com.example.weatherforecast_app.data.local.location.ILocationLocalDataSource
 import com.example.weatherforecast_app.data.local.location.LocationLocalDataSourceImp
 import com.example.weatherforecast_app.data.remote.location.ILocationRemoteDataSource

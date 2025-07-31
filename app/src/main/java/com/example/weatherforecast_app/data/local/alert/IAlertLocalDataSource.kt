@@ -1,6 +1,4 @@
-package com.example.weatherforecast_app.data.local.Alert
-
-import androidx.room.Delete
+package com.example.weatherforecast_app.data.local.alert
 
 import com.example.weatherforecast_app.data.model.AlertInfo
 import kotlinx.coroutines.flow.Flow

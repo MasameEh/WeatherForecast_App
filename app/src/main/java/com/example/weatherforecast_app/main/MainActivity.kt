@@ -20,7 +20,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -37,7 +36,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
@@ -70,7 +68,7 @@ import com.example.weatherforecast_app.map.viewmodel.MapViewModelFactory
 import com.example.weatherforecast_app.settings.view.SettingsScreen
 import com.example.weatherforecast_app.ui.theme.WeatherForecast_AppTheme
 import com.example.weatherforecast_app.components.BottomNavigationBar
-import com.example.weatherforecast_app.data.local.Alert.AlertLocalDataSourceImp
+import com.example.weatherforecast_app.data.local.alert.AlertLocalDataSourceImp
 import com.example.weatherforecast_app.data.local.preferences.CacheHelper
 import com.example.weatherforecast_app.data.model.LocationInfo
 import com.example.weatherforecast_app.data.remote.location.LocationRemoteDataSourceImp

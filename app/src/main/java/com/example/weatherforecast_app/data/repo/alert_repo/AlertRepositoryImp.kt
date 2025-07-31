@@ -1,6 +1,6 @@
 package com.example.weatherforecast_app.data.repo.alert_repo
 
-import com.example.weatherforecast_app.data.local.Alert.IAlertLocalDataSource
+import com.example.weatherforecast_app.data.local.alert.IAlertLocalDataSource
 import com.example.weatherforecast_app.data.model.AlertInfo
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

@@ -18,13 +18,6 @@ abstract class AppDatabase : RoomDatabase(){
         @Volatile
         private var instance: AppDatabase?  = null
 
-//        fun getInstance(context: Context): AppDatabase{
-//            return instance ?: synchronized(this){
-//                val inst = Room.databaseBuilder(context, LocationsDatabase::class.java, "roomdb").build()
-//                instance = inst // Stores the created instance for future calls
-//                inst
-//            }
-//        }
         fun getInstance(context: Context): AppDatabase{
             return instance ?: synchronized(this){
                 instance ?: Room.databaseBuilder(context, AppDatabase::class.java, "roomdb").build()
