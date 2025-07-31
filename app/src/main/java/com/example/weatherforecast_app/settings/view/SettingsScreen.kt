@@ -27,6 +27,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -60,11 +61,12 @@ import com.example.weatherforecast_app.ui.theme.LightBlue
 import com.example.weatherforecast_app.ui.theme.gradientBackground
 import com.example.weatherforecast_app.utils.LanguageHelper
 import com.example.weatherforecast_app.utils.NotificationHelper
-
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
 
 private const val TAG = "SettingsScreen"
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun SettingsScreen(settingsViewModel: SettingsViewModel,
                    navigateToMap: () -> Unit,
@@ -78,11 +80,18 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel,
 
     val context = LocalContext.current
 
+    val calendarPermissionState = rememberMultiplePermissionsState(
+        listOf(
+            android.Manifest.permission.READ_CALENDAR,
+            android.Manifest.permission.WRITE_CALENDAR
+        )
+    )
     LaunchedEffect(Unit) {
         selectedLanguage = settingsViewModel.getLanguagePref() ?: "System Default"
         selectedTempUnit = settingsViewModel.getTemperatureUnitPref() ?: "Celsius"
         selectedWindUnit = settingsViewModel.getWindUnitPref() ?: "m/s"
         selectedNotificationStatus = settingsViewModel.getUserNotificationStatus()
+        calendarPermissionState.launchMultiplePermissionRequest()
     }
 
     Scaffold(
@@ -96,6 +105,15 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel,
                         textAlign = TextAlign.Start,
                         style = MaterialTheme.typography.titleLarge
                     )
+                    Spacer(Modifier.width(15.dp))
+                },
+                actions = {
+                    Button(onClick = {
+                        if (calendarPermissionState.allPermissionsGranted) {
+                             settingsViewModel.syncWeatherAlertsToCalendar(context)
+                        }}) {
+                        Text("Add Alerts to Calendar")
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -103,12 +121,10 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel,
                 )
             )
         },
-
         ) { innerPadding ->
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
-                .fillMaxSize()
                 .padding(innerPadding)
                 .gradientBackground()
                 .padding(start = 8.dp, end = 8.dp, bottom = 20.dp)
@@ -175,6 +191,7 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel,
                 },
                 selectedLocation
             )
+
         }
     }
 }

@@ -5,11 +5,15 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
+import android.util.Log
 import androidx.room.Room
 import com.example.weatherforecast_app.data.local.AlertsDao
 import com.example.weatherforecast_app.data.local.AppDatabase
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.runBlocking
+
+private const val TAG = "AlertContentProvider"
 
 class AlertContentProvider : ContentProvider() {
 
@@ -30,15 +34,15 @@ class AlertContentProvider : ContentProvider() {
         uri: Uri, projection: Array<String>?, selection: String?,
         selectionArgs: Array<String>?, sortOrder: String?
     ): Cursor? {
+        Log.i(TAG, "query: ")
         val cursor = MatrixCursor(arrayOf("id", "timestamp"))
         cursor.addRow(arrayOf("1", "2"))
         val alerts = dao.getAllAlerts()
 
         runBlocking {
-            alerts.collect { alertInfos ->
-                alertInfos.forEach {
-                    cursor.addRow((arrayOf(it.id, it.timestamp)))
-                }
+            val alertInfos = alerts.first()
+            alertInfos.forEach {
+                cursor.addRow(arrayOf(it.id, it.timestamp))
             }
         }
         return cursor
