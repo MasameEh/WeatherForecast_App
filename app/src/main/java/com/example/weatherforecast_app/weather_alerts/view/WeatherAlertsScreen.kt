@@ -208,23 +208,26 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
                                 val selectedHour = timePickerState.hour
                                 val selectedMinute = timePickerState.minute
 
-                                if (selectedHour < now.get(Calendar.HOUR_OF_DAY) ||
-                                    (selectedHour == now.get(Calendar.HOUR_OF_DAY) && selectedMinute < now.get(
-                                        Calendar.MINUTE
-                                    ))
-                                ) {
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(R.string.future_time),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    return@TimePickerDialog
+                                val selectedDateMillis = datePickerState.selectedDateMillis
+
+                                if (selectedDateMillis != null) {
+                                    val selectedCalendar = Calendar.getInstance().apply {
+                                        timeInMillis = selectedDateMillis
+                                        set(Calendar.HOUR_OF_DAY, selectedHour)
+                                        set(Calendar.MINUTE, selectedMinute)
+                                        set(Calendar.SECOND, 0)
+                                        set(Calendar.MILLISECOND, 0)
+                                    }
+                                    if (selectedCalendar.before(now)) {
+                                        Toast.makeText(
+                                            context,
+                                            context.getString(R.string.future_time),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        return@TimePickerDialog
+                                    }
                                 }
 
-                                Log.i(
-                                    "WeatherAlerts",
-                                    "WeatherAlertsScreen: ${timePickerState.hour} ${timePickerState.minute}"
-                                )
                                 calendar.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
                                 calendar.set(Calendar.MINUTE, timePickerState.minute)
                                 calendar.set(Calendar.SECOND, 0)
@@ -242,10 +245,7 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
                                 }else{
                                     viewModel.scheduleWeatherAlert(context, timestamp, alert.id)
                                 }
-                                Log.i(
-                                    "WeatherAlerts",
-                                    "calendar: ${formatDateTimestamp(timestamp,context)}"
-                                )
+
                                 viewModel.toggleTimePicker(false)
                                 return@TimePickerDialog
                             }
@@ -254,23 +254,26 @@ fun WeatherAlertsScreen(viewModel: AlertsViewModel) {
                             val selectedHour = timePickerState.hour
                             val selectedMinute = timePickerState.minute
 
-                            if (selectedHour < now.get(Calendar.HOUR_OF_DAY) ||
-                                (selectedHour == now.get(Calendar.HOUR_OF_DAY) && selectedMinute < now.get(
-                                    Calendar.MINUTE
-                                ))
-                            ) {
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.future_time),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                return@TimePickerDialog
+                            val selectedDateMillis = datePickerState.selectedDateMillis
+
+                            if (selectedDateMillis != null) {
+                                val selectedCalendar = Calendar.getInstance().apply {
+                                    timeInMillis = selectedDateMillis
+                                    set(Calendar.HOUR_OF_DAY, selectedHour)
+                                    set(Calendar.MINUTE, selectedMinute)
+                                    set(Calendar.SECOND, 0)
+                                    set(Calendar.MILLISECOND, 0)
+                                }
+                                if (selectedCalendar.before(now)) {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.future_time),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    return@TimePickerDialog
+                                }
                             }
 
-                            Log.i(
-                                "WeatherAlerts",
-                                "WeatherAlertsScreen: ${timePickerState.hour} ${timePickerState.minute}"
-                            )
                             calendar.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
                             calendar.set(Calendar.MINUTE, timePickerState.minute)
                             calendar.set(Calendar.SECOND, 0)
