@@ -20,19 +20,22 @@ The app also includes various settings like language change, unit preferences, n
 - **WorkManager** – Background weather alert scheduling
 - **Room** – Local storage of favorite locations and alerts
 - **Google Maps API** – Select your location from a map
-- **openweathermap API)** 
+- **Content Provider** – to expose weather alerts 
+- **openweathermap API** 
 ---
 
 ## ✨ Features
 
-- 📍 **Current Location Weather**
-- 💾 **Favorite Locations List**
-- 🔔 **Weather Alerts via Notifications**
-- ⚙️ **App Settings:**
+-  **Current Location Weather**
+-  **Favorite Locations List**
+-  **Weather Alerts via Notifications**
+-  **Add Weather Alerts to calendar**
+-  **App Settings:**
   - Change language (English / Arabic)
   - Switch temperature (Celsius / Fahrenheit / Kelvin) & wind units
   - Enable/Disable weather alert notifications
   - Choose your current location from a map
+    
 
 ---
 
